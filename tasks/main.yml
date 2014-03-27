@@ -1,0 +1,28 @@
+---
+- name: Assert platform is supported
+  tags: ssl-certificate
+  assert:
+    that:
+      - ansible_os_family in ['Debian', 'RedHat']
+
+- name: intall openssl 
+  tags: ssl-certificate
+  action: "{{ ansible_pkg_mgr }} state=installed name=openssl"
+
+- name: create certificates
+  tags: ssl-certificate 
+  command: 
+    openssl req -new -nodes -x509 
+    -subj {{ item.subj | default( "/C=DE/ST=Hamburg/L=Hamburg/O=IT/CN={{ansible_fqdn}}")}} 
+    -days {{ item.days | default(3650) }} 
+    -keyout {{ item.key }}  
+    -out {{ item.certificate }} 
+    -extensions v3_ca creates={{ item.certificate }}
+  with_items: ssl_certificates_create
+
+- name: copy certificates from local
+  tags: ssl-certificate 
+  copy:
+    dest={{ item.dest }}
+    src={{ item.src }}
+  with_items: ssl_certificates_copy
