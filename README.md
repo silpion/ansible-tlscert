@@ -22,8 +22,8 @@ certificate:
 
 ```
 ssl_certificates_create:
-  - key: "/etc/ssl/certs/test.key"
-    certificate: "/etc/ssl/private/test.crt"
+  - key: "/etc/ssl/private/test.key"
+    certificate: "/etc/ssl/certs/test.crt"
 ```
 
 ### ssl_certificates_copy: []
@@ -43,7 +43,7 @@ src:
 ```
 ssl_certificates_copy:
   - dest: "/etc/ssl/certs/test.crt"
-    src: "files/certificates/test.cert"
+    src: "files/certificates/test.crt"
   - dest: "/etc/ssl/private/test.key"
     src: "files/certificates/test.key"
 ```
