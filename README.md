@@ -1,31 +1,34 @@
 # Ansible ssl-certificates Role
 
-Role to create or copy certificates
+Role to create or copy SSL certificates.
 
 ## Variables
 
 ### ssl_certificates_create: []
-if variable is set Role will create self-signed certificates for given list elements
+
+If variable is set the role will create self-signed certificates for
+given list elements.
 
 #### Options:
 
 ```
-subj: "/C=DE/ST=Hamburg/L=Hamburg/O=IT/CN={{ansible_fqdn}}"
+subj: "/C=DE/ST=Hamburg/L=Hamburg/O=IT/CN={{ ansible_fqdn }}"
 days: 3650
 key:
 certificate:
 ```
-  
+
 #### Example:
 
 ```
 ssl_certificates_create:
-  - key: "/etc/ssl/certs/test.crt"
-    certificate: "/etc/ssl/private/test.key"
+  - key: "/etc/ssl/certs/test.key"
+    certificate: "/etc/ssl/private/test.crt"
 ```
 
 ### ssl_certificates_copy: []
-if variable is set Role will copy given certificates to destination
+
+If variable is set the role will copy given certificates to destination.
 
 
 #### Options:
@@ -44,3 +47,6 @@ ssl_certificates_copy:
   - dest: "/etc/ssl/private/test.key"
     src: "files/certificates/test.key"
 ```
+
+
+<!-- vim: set nofen ts=4 sw=4 et: -->
