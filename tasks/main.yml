@@ -24,7 +24,7 @@
     -new
     -nodes
     -x509
-    -subj {{ item.subj|default( "/C=DE/ST=Hamburg/L=Hamburg/O=IT/CN={{ansible_fqdn}}")}}
+    -subj {{ item.subj|default("/C=DE/ST=Hamburg/L=Hamburg/O=IT/CN={{ansible_fqdn}}") }}
     -days {{ item.days|default(3650) }}
     -keyout {{ item.key }}
     -out {{ item.certificate }}
