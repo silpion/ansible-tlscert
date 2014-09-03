@@ -1,23 +1,23 @@
 ---
 - name: Assert platform is supported
-  tags: ssl-certificate
+  tags: ssl-certificates
   assert:
     that:
       - ansible_os_family in ['Debian', 'RedHat']
 
 - name: Update apt package cache
-  tags: ssl-certificate
+  tags: ssl-certificates
   when: ansible_os_family == 'Debian'
   apt:
     update_cache=yes
     cache_valid_time=3600
 
 - name: Intall openssl
-  tags: ssl-certificate
+  tags: ssl-certificates
   action: "{{ ansible_pkg_mgr }} state=installed name=openssl"
 
 - name: Create self-signed certificates
-  tags: ssl-certificate
+  tags: ssl-certificates
   with_items: ssl_certificates_create
   command:
     openssl req
@@ -31,7 +31,7 @@
     -extensions v3_ca creates={{ item.certificate }}
 
 - name: Copy certificates
-  tags: ssl-certificate
+  tags: ssl-certificates
   with_items: ssl_certificates_copy
   copy:
     dest={{ item.dest }}
