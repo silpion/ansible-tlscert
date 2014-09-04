@@ -37,25 +37,24 @@
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
 
-- name: Create self-signed certificates OpenSSL configuration files
+- name: Create openssl.cnf for certificates
   tags: ssl-certificates
   with_items: ssl_certificates_create
   template:
     src=openssl.cnf.j2
     dest=/etc/ssl/cnf/{{ item.name }}-openssl.cnf
 
-
 - name: Create self-signed certificates
   tags: ssl-certificates
   with_items: ssl_certificates_create
   command:
     openssl req
-      -newkey rsa:{% if item.bits is defined %}{{ item.bits }}{% else %}{{ ssl_certificates_openssl_default_bits }}{% endif %}
+      -newkey "rsa:{{ item.bits|default(ssl_certificates_openssl_default_bits) }}"
       -nodes
       -x509
-      -days {% if item.days is defined %}{{ item.days }}{% else %}{{ ssl_certificates_openssl_default_days }}{% endif %}
-      -keyout {% if item.key is defined %}{{ item.key }}{% else %}/etc/ssl/private/{{ item.name }}.pem{% endif %}
-      -out {% if item.crt is defined %}{{ item.crt}}{% else %}/etc/ssl/certs/{{ item.name }}.crt
+      -days {{ item.days|default(ssl_certificates_openssl_default_days) }}
+      -keyout {{ item.key|default("/etc/ssl/private/" + item.name + ".pem") }}
+      -out {{ item.crt|default("/etc/ssl/certs/" + item.name + ".crt") }}
       -config /etc/ssl/cnf/{{ item.name }}-openssl.cnf
     creates=/etc/ssl/certs/{{ item.name }}.crt
 
