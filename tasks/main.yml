@@ -1,38 +1,67 @@
 ---
 - name: Assert platform is supported
-  tags: ssl-certificate
+  tags: ssl-certificates
   assert:
     that:
       - ansible_os_family in ['Debian', 'RedHat']
 
+- include_vars: "{{ ansible_os_family }}.yml"
+  tags: ssl-certificates
+
+
 - name: Update apt package cache
-  tags: ssl-certificate
+  tags: ssl-certificates
   when: ansible_os_family == 'Debian'
   apt:
     update_cache=yes
     cache_valid_time=3600
 
-- name: Intall openssl
-  tags: ssl-certificate
-  action: "{{ ansible_pkg_mgr }} state=installed name=openssl"
+
+- name: Ensure default directories
+  tags: ssl-certificates
+  with_items:
+    - { dir: /etc/ssl/cnf, mode: 700, owner: 0, group: 0 }
+    - { dir: /etc/ssl/certs, mode: 755, owner: 0, group: 0 }
+    - { dir: /etc/ssl/private, mode: 700, owner: 0, group: 0 }
+  file:
+    state=directory
+    dest={{ item.dir }}
+    mode={{ item.mode }}
+    owner={{ item.owner }}
+    group={{ item.group }}
+
+
+- name: Install required packages
+  tags: ssl-certificates
+  with_items: ssl_certificates_package_list
+  action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
+
+
+- name: Create openssl.cnf for certificates
+  tags: ssl-certificates
+  with_items: ssl_certificates_create
+  template:
+    src=openssl.cnf.j2
+    dest=/etc/ssl/cnf/{{ item.name }}-openssl.cnf
 
 - name: Create self-signed certificates
-  tags: ssl-certificate
+  tags: ssl-certificates
   with_items: ssl_certificates_create
   command:
     openssl req
-    -new
-    -nodes
-    -x509
-    -subj {{ item.subj|default("/C=DE/ST=Hamburg/L=Hamburg/O=IT/CN={{ansible_fqdn}}") }}
-    -days {{ item.days|default(3650) }}
-    -keyout {{ item.key }}
-    -out {{ item.certificate }}
-    -extensions v3_ca creates={{ item.certificate }}
+      -newkey "rsa:{{ item.bits|default(ssl_certificates_openssl_default_bits) }}"
+      -nodes
+      -x509
+      -days {{ item.days|default(ssl_certificates_openssl_default_days) }}
+      -keyout {{ item.key|default("/etc/ssl/private/" + item.name + ".pem") }}
+      -out {{ item.crt|default("/etc/ssl/certs/" + item.name + ".crt") }}
+      -config /etc/ssl/cnf/{{ item.name }}-openssl.cnf
+    creates=/etc/ssl/certs/{{ item.name }}.crt
 
-- name: Copy certificates
-  tags: ssl-certificate
+
+- name: Copy existing certificates
+  tags: ssl-certificates
   with_items: ssl_certificates_copy
   copy:
-    dest={{ item.dest }}
     src={{ item.src }}
+    dest={{ item.dest }}
