@@ -20,15 +20,34 @@
 - name: Ensure default directories
   tags: ssl-certificates
   with_items:
-    - { dir: /etc/ssl/cnf, mode: 700, owner: 0, group: 0 }
-    - { dir: /etc/ssl/certs, mode: 755, owner: 0, group: 0 }
-    - { dir: /etc/ssl/private, mode: 700, owner: 0, group: 0 }
+    - { dir: "{{ ssl_certificates_cnf_path }}", mode: 700, owner: 0, group: 0 }
+    - { dir: "{{ ssl_certificates_crt_path }}", mode: 755, owner: 0, group: 0 }
+    - { dir: "{{ ssl_certificates_key_path }}", mode: 700, owner: 0, group: 0 }
   file:
     state=directory
     dest={{ item.dir }}
     mode={{ item.mode }}
     owner={{ item.owner }}
     group={{ item.group }}
+
+
+- name: Install Ansible facts.d directory
+  tags: ssl-certificates
+  file:
+    state=directory
+    owner=0
+    group=0
+    mode=0755
+    dest=/etc/ansible/facts.d
+
+- name: Install ssl-certificates facts
+  tags: ssl-certificates
+  template:
+    src=facts.j2
+    dest=/etc/ansible/facts.d/ssl-certificates.ini
+    owner=0
+    group=0
+    mode=0644
 
 
 - name: Install required packages
@@ -42,7 +61,7 @@
   with_items: ssl_certificates_create
   template:
     src=openssl.cnf.j2
-    dest=/etc/ssl/cnf/{{ item.name }}-openssl.cnf
+    dest={{ ssl_certificates_cnf_path }}/{{ item.name }}-openssl.cnf
 
 - name: Create self-signed certificates
   tags: ssl-certificates
@@ -53,10 +72,10 @@
       -nodes
       -x509
       -days {{ item.days|default(ssl_certificates_openssl_default_days) }}
-      -keyout {{ item.key|default("/etc/ssl/private/" + item.name + ".pem") }}
-      -out {{ item.crt|default("/etc/ssl/certs/" + item.name + ".crt") }}
-      -config /etc/ssl/cnf/{{ item.name }}-openssl.cnf
-    creates=/etc/ssl/certs/{{ item.name }}.crt
+      -keyout {{ item.key|default(ssl_certificates_key_path + "/" + item.name + ".pem") }}
+      -out {{ item.crt|default(ssl_certificates_crt_path + "/" + item.name + ".crt") }}
+      -config {{ ssl_certificates_cnf_path }}/{{ item.name }}-openssl.cnf
+    creates={{ ssl_certificates_crt_path }}/{{ item.name }}.crt
 
 
 - name: Copy existing certificates
