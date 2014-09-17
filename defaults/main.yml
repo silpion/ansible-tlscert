@@ -2,6 +2,10 @@
 ssl_certificates_create: []
 ssl_certificates_copy: []
 
+ssl_certificates_cnf_path: /etc/ssl/cnf
+ssl_certificates_crt_path: /etc/ssl/certs
+ssl_certificates_key_path: /etc/ssl/private
+
 ssl_certificates_openssl_default_days: 3650
 ssl_certificates_openssl_default_bits: 1024                 # default_bits
 ssl_certificates_openssl_default_C: DE                      # countryName_default
