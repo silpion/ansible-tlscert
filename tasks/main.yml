@@ -49,6 +49,11 @@
     group=0
     mode=0644
 
+- name: Re-read facts
+  tags: ssl-certificates
+  setup:
+    filter=ansible_local
+
 
 - name: Install required packages
   tags: ssl-certificates
