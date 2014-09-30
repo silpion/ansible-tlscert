@@ -9,7 +9,7 @@ None.
 ## Role Variables
 
 * ``ssl_certificates_create``: Array of SSL certificates to create (default: ``[]``)
-* ``ssl_certificates_copy``: Array of existing SSL certificates to install (default: ``[]``)
+* ``ssl_certificates_install``: Array of existing SSL certificates to install (default: ``[]``)
 
 ### Global SSL certificate generation defaults
 
@@ -44,15 +44,16 @@ Any global variable can be overridden for each certificate from
 Variables not provided in a ``name`` dictionary within ``ssl_certificates_create``
 array default to the global defaults.
 
-### ssl_certificates_copy
+### ssl_certificates_install
 
 The role will copy existing certificate/key pairs to a managed node
-if ``ssl_certificates_copy`` variable is set.
+if ``ssl_certificates_install`` variable is set.
 
     vars:
-      - ssl_certificates_copy:
-        - src: "files/certs/foo.crt"
-          dest: "/etc/ssl/certs/foo.crt"
+      - ssl_certificates_install:
+        - name: foo.domain.tld
+
+This requires two files .crt and .key to be available at files/ directory.
 
 ## Dependencies
 
@@ -69,6 +70,13 @@ This is just an example which variables to configure in your inventory!
           - name: www.example.com
       roles:
         - { role: ssl-certificates }
+
+<!-- -->
+
+    - hosts: lbs
+      vars:
+        - ssl_certificates_install:
+          - name: www.example.com
 
 ## License
 
