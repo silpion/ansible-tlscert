@@ -98,7 +98,7 @@
   with_items: ssl_certificates_install
   copy:
     src=files/{{ item.name }}.key
-    dest={{ ssl_certificates_key_path }}/{{ item.name }}.key
+    dest={{ ssl_certificates_key_path }}/{{ item.name }}.pem
     owner=0
     group=0
     mode=0600
