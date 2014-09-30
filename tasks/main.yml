@@ -87,5 +87,18 @@
   tags: ssl-certificates
   with_items: ssl_certificates_install
   copy:
-    src={{ item.src }}
+    src={{ item.name }}.crt
     dest={{ ssl_certificates_crt_path }}/{{ item.name }}.crt
+    owner=0
+    group=0
+    mode=0644
+
+- name: Install SSL certificate keys
+  tags: ssl-certificates
+  with_items: ssl_certificates_install
+  copy=
+    src={{ item.name }}.key
+    dest={{ ssl_certificates_key_path }}/{{ item.name }}.key
+    owner=0
+    group=0
+    mode=0600
