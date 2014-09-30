@@ -68,7 +68,7 @@
     src=openssl.cnf.j2
     dest={{ ssl_certificates_cnf_path }}/{{ item.name }}-openssl.cnf
 
-- name: Create self-signed certificates
+- name: Create self-signed SSL certificates
   tags: ssl-certificates
   with_items: ssl_certificates_create
   command:
@@ -83,9 +83,22 @@
     creates={{ ssl_certificates_crt_path }}/{{ item.name }}.crt
 
 
-- name: Copy existing certificates
+- name: Install SSL certificates
   tags: ssl-certificates
-  with_items: ssl_certificates_copy
+  with_items: ssl_certificates_install
   copy:
-    src={{ item.src }}
-    dest={{ item.dest }}
+    src=files/{{ item.name }}.crt
+    dest={{ ssl_certificates_crt_path }}/{{ item.name }}.crt
+    owner=0
+    group=0
+    mode=0644
+
+- name: Install SSL certificate keys
+  tags: ssl-certificates
+  with_items: ssl_certificates_install
+  copy:
+    src=files/{{ item.name }}.key
+    dest={{ ssl_certificates_key_path }}/{{ item.name }}.pem
+    owner=0
+    group=0
+    mode=0600

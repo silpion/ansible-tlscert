@@ -1,6 +1,6 @@
 ---
 ssl_certificates_create: []
-ssl_certificates_copy: []
+ssl_certificates_install: []
 
 ssl_certificates_cnf_path: /etc/ssl/cnf
 ssl_certificates_crt_path: /etc/ssl/certs
