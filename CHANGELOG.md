@@ -1,3 +1,10 @@
+# 0.3.0
+
+Mark Kusch (8):
+      Install existing certificates according to pathes
+      Install SSL certificate keys with .pem extension
+      Update documentation
+
 # 0.2.3
 
 Mark Kusch (2):
