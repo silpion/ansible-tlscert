@@ -52,7 +52,8 @@ if ``ssl_certificates_install`` variable is set.
     vars:
       - ssl_certificates_install:
         - name: foo.domain.tld
-          src: files/certs/foo.crt
+
+This requires two files .crt and .key to be available at files/ directory.
 
 ## Dependencies
 
@@ -69,6 +70,13 @@ This is just an example which variables to configure in your inventory!
           - name: www.example.com
       roles:
         - { role: ssl-certificates }
+
+<!-- -->
+
+    - hosts: lbs
+      vars:
+        - ssl_certificates_install:
+          - name: www.example.com
 
 ## License
 
