@@ -44,7 +44,7 @@ Any global variable can be overridden for each certificate from
 Variables not provided in a ``name`` dictionary within ``ssl_certificates_create``
 array default to the global defaults.
 
-### ssl_certificates_copy
+### ssl_certificates_install
 
 The role will copy existing certificate/key pairs to a managed node
 if ``ssl_certificates_install`` variable is set.
