@@ -96,7 +96,7 @@
 - name: Install SSL certificate keys
   tags: ssl-certificates
   with_items: ssl_certificates_install
-  copy=
+  copy:
     src={{ item.name }}.key
     dest={{ ssl_certificates_key_path }}/{{ item.name }}.key
     owner=0
