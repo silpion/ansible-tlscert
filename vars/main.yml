@@ -1,0 +1,4 @@
+---
+ssl_certificates_supported_platforms:
+  - Debian
+  - RedHat

@@ -3,7 +3,7 @@
   tags: ssl-certificates
   assert:
     that:
-      - ansible_os_family in ['Debian', 'RedHat']
+      - ansible_os_family in ssl_certificates_supported_platforms
 
 - include_vars: "{{ ansible_os_family }}.yml"
   tags: ssl-certificates
