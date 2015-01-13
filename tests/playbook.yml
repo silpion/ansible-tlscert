@@ -1,7 +1,5 @@
 ---
 - hosts: all
-  sudo: yes
-  sudo_user: root
   vars:
     - ssl_certificates_create:
       - name: foo.example.com

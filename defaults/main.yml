@@ -6,6 +6,31 @@ ssl_certificates_cnf_path: /etc/ssl/cnf
 ssl_certificates_crt_path: /etc/ssl/certs
 ssl_certificates_key_path: /etc/ssl/private
 
+# allow to override access controls for directories
+#   required for the role to work.
+#   This primarily addresses an issue with Debian/Ubuntu
+#   which modifies the private dir below /etc/ssl in
+#   postinstall scripts (e.g. when installing postgresql).
+#
+# NOTE: Default users and groups might not work on
+#   systems ansible_system != 'Linux'.
+#
+# NOTE: When configuring user or groups for filesystem
+#   object ownership ensure to have these available on
+#   the managed node. Otherwise the role will fail the play.
+ssl_certificates_cnf_path_owner: 0
+ssl_certificates_cnf_path_group: 0
+ssl_certificates_cnf_path_mode: 700
+
+ssl_certificates_crt_path_owner: 0
+ssl_certificates_crt_path_group: 0
+ssl_certificates_crt_path_mode: 755
+
+ssl_certificates_key_path_owner: 0
+ssl_certificates_key_path_group: 0
+ssl_certificates_key_path_mode: 700
+
+
 ssl_certificates_openssl_default_days: 3650
 ssl_certificates_openssl_default_bits: 1024                 # default_bits
 ssl_certificates_openssl_default_C: DE                      # countryName_default

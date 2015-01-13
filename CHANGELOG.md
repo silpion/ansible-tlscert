@@ -1,3 +1,13 @@
+# 0.4.0
+
+Mark Kusch (6):
+      Allow to override ownership and access controls for OpenSSL directories
+      Add license
+      Allow github to perform integration testing
+      Update integration testing to work with Serverspec 2.N
+      Ensure tasks define sudo: yes when requiring superuser privileges
+      Abstract supported platforms in vars
+
 # 0.3.0
 
 Mark Kusch (8):

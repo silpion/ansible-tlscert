@@ -3,7 +3,7 @@
   tags: ssl-certificates
   assert:
     that:
-      - ansible_os_family in ['Debian', 'RedHat']
+      - ansible_os_family in ssl_certificates_supported_platforms
 
 - include_vars: "{{ ansible_os_family }}.yml"
   tags: ssl-certificates
@@ -11,6 +11,7 @@
 
 - name: Update apt package cache
   tags: ssl-certificates
+  sudo: yes
   when: ansible_os_family == 'Debian'
   apt:
     update_cache=yes
@@ -19,10 +20,26 @@
 
 - name: Ensure default directories
   tags: ssl-certificates
+  sudo: yes
   with_items:
-    - { dir: "{{ ssl_certificates_cnf_path }}", mode: 700, owner: 0, group: 0 }
-    - { dir: "{{ ssl_certificates_crt_path }}", mode: 755, owner: 0, group: 0 }
-    - { dir: "{{ ssl_certificates_key_path }}", mode: 700, owner: 0, group: 0 }
+    - { dir:
+        "{{ ssl_certificates_cnf_path }}",
+          mode: "{{ ssl_certificates_cnf_path_mode }}",
+          owner: "{{ ssl_certificates_cnf_path_owner }}",
+          group: "{{ ssl_certificates_cnf_path_group }}"
+      }
+    - { dir:
+        "{{ ssl_certificates_crt_path }}",
+          mode: "{{ ssl_certificates_crt_path_mode  }}",
+          owner: "{{ ssl_certificates_crt_path_owner }}",
+          group: "{{ ssl_certificates_crt_path_group }}"
+      }
+    - { dir:
+        "{{ ssl_certificates_key_path }}",
+          mode: "{{ ssl_certificates_key_path_mode }}",
+          owner: "{{ ssl_certificates_key_path_owner }}",
+          group: "{{ ssl_certificates_key_path_group }}"
+      }
   file:
     state=directory
     dest={{ item.dir }}
@@ -33,6 +50,7 @@
 
 - name: Install Ansible facts.d directory
   tags: ssl-certificates
+  sudo: yes
   file:
     state=directory
     owner=0
@@ -42,6 +60,7 @@
 
 - name: Install ssl-certificates facts
   tags: ssl-certificates
+  sudo: yes
   template:
     src=facts.j2
     dest=/etc/ansible/facts.d/ssl-certificates.fact
@@ -57,12 +76,14 @@
 
 - name: Install required packages
   tags: ssl-certificates
+  sudo: yes
   with_items: ssl_certificates_package_list
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
 
 - name: Create openssl.cnf for certificates
   tags: ssl-certificates
+  sudo: yes
   with_items: ssl_certificates_create
   template:
     src=openssl.cnf.j2
@@ -70,6 +91,7 @@
 
 - name: Create self-signed SSL certificates
   tags: ssl-certificates
+  sudo: yes
   with_items: ssl_certificates_create
   command:
     openssl req
@@ -85,6 +107,7 @@
 
 - name: Install SSL certificates
   tags: ssl-certificates
+  sudo: yes
   with_items: ssl_certificates_install
   copy:
     src=files/{{ item.name }}.crt
@@ -95,6 +118,7 @@
 
 - name: Install SSL certificate keys
   tags: ssl-certificates
+  sudo: yes
   with_items: ssl_certificates_install
   copy:
     src=files/{{ item.name }}.key
