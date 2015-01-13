@@ -85,6 +85,7 @@
 - name: Create openssl.cnf for certificates
   tags: ssl-certificates
   sudo: yes
+  no_log: true
   with_items: ssl_certificates_create
   template:
     src=openssl.cnf.j2
