@@ -13,6 +13,6 @@
 #                  ||    ||
 
 [general]
-ssl_certificates_cnf_path={{ ssl_certificates_cnf_path }}
-ssl_certificates_crt_path={{ ssl_certificates_crt_path }}
-ssl_certificates_key_path={{ ssl_certificates_key_path }}
+ssl_certificates_cnf_path={{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}
+ssl_certificates_crt_path={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}
+ssl_certificates_key_path={{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}

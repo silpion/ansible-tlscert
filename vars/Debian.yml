@@ -2,6 +2,6 @@
 ssl_certificates_package_list:
   - openssl
 
-ssl_certificates_cnf_path: "{{ ssl_certificates_cnf_path_debian }}"
-ssl_certificates_crt_path: "{{ ssl_certificates_crt_path_debian }}"
-ssl_certificates_key_path: "{{ ssl_certificates_key_path_debian }}"
+ssl_certificates_cnf_path_default: /etc/ssl/cnf
+ssl_certificates_crt_path_default: /etc/ssl/certs
+ssl_certificates_key_path_default: /etc/ssl/private

@@ -24,19 +24,19 @@
   sudo: yes
   with_items:
     - { dir:
-        "{{ ssl_certificates_cnf_path }}",
+        "{{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}",
           mode: "{{ ssl_certificates_cnf_path_mode }}",
           owner: "{{ ssl_certificates_cnf_path_owner }}",
           group: "{{ ssl_certificates_cnf_path_group }}"
       }
     - { dir:
-        "{{ ssl_certificates_crt_path }}",
+        "{{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}",
           mode: "{{ ssl_certificates_crt_path_mode  }}",
           owner: "{{ ssl_certificates_crt_path_owner }}",
           group: "{{ ssl_certificates_crt_path_group }}"
       }
     - { dir:
-        "{{ ssl_certificates_key_path }}",
+        "{{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}",
           mode: "{{ ssl_certificates_key_path_mode }}",
           owner: "{{ ssl_certificates_key_path_owner }}",
           group: "{{ ssl_certificates_key_path_group }}"
@@ -89,7 +89,7 @@
   with_items: ssl_certificates_create
   template:
     src=openssl.cnf.j2
-    dest={{ ssl_certificates_cnf_path }}/{{ item.name }}-openssl.cnf
+    dest={{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
 
 - name: Create self-signed SSL certificates
   tags: ssl-certificates
@@ -101,10 +101,10 @@
       -nodes
       -x509
       -days {{ item.days|default(ssl_certificates_openssl_default_days) }}
-      -keyout {{ item.key|default(ssl_certificates_key_path + "/" + item.name + ".pem") }}
-      -out {{ item.crt|default(ssl_certificates_crt_path + "/" + item.name + ".crt") }}
-      -config {{ ssl_certificates_cnf_path }}/{{ item.name }}-openssl.cnf
-    creates={{ ssl_certificates_crt_path }}/{{ item.name }}.crt
+      -keyout {% if ssl_certificates_key_path is defined %}{{ item.key|default(ssl_certificates_key_path + "/" + item.name + ".pem") }}{% else %}{{ item.key|default(ssl_certificates_key_path_default) + "/" + item.name + ".pem"}}{% endif %}
+      -out {% if ssl_certificates_crt_path is defined %}{{ item.crt|default(ssl_certificates_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_certificates_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
+      -config {{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
+    creates={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}/{{ item.name }}.crt
 
 
 - name: Install SSL certificates
@@ -113,7 +113,7 @@
   with_items: ssl_certificates_install
   copy:
     src=files/{{ item.name }}.crt
-    dest={{ ssl_certificates_crt_path }}/{{ item.name }}.crt
+    dest={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}/{{ item.name }}.crt
     owner=0
     group=0
     mode=0644
@@ -124,7 +124,7 @@
   with_items: ssl_certificates_install
   copy:
     src=files/{{ item.name }}.key
-    dest={{ ssl_certificates_key_path }}/{{ item.name }}.pem
+    dest={{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}/{{ item.name }}.pem
     owner=0
     group=0
     mode=0600

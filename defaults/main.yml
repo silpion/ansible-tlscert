@@ -3,17 +3,15 @@ ssl_certificates_create: []
 ssl_certificates_install: []
 
 # Configure where certificates/keys are stored
-#   These vars are mapped to distribution specific ones
-#   in vars/{{ ansible_os_family }}.yml
-ssl_certificates_cnf_path_debian: /etc/ssl/cnf
-ssl_certificates_crt_path_debian: /etc/ssl/certs
-ssl_certificates_key_path_debian: /etc/ssl/private
+#
+#ssl_certificates_cnf_path: ""
+#ssl_certificates_crt_path: ""
+#ssl_certificates_key_path: ""
+#
+#   Default values for those variables are configured
+#     in an OS specific way in vars/{{ ansible_os_family }}.yml
 
-ssl_certificates_cnf_path_redhat: /etc/pki/tls/cnf
-ssl_certificates_crt_path_redhat: /etc/pki/tls/certs
-ssl_certificates_key_path_redhat: /etc/pki/tls/private
-
-# allow to override access controls for directories
+# Allow to override access controls for directories
 #   required for the role to work.
 #   This primarily addresses an issue with Debian/Ubuntu
 #   which modifies the private dir below /etc/ssl in
