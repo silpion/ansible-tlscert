@@ -13,9 +13,9 @@ this role will fail the play.
 * ``ssl_certificates_create``: Array of SSL certificates to create (array, default: ``[]``)
 * ``ssl_certificates_install``: Array of existing SSL certificates to install (array, default: ``[]``)
 
-* ``ssl_certificates_cnf_path``: Directory name where to store OpenSSL configuration files (string, default: ``/etc/ssl/cnf``)
-* ``ssl_certificates_crt_path``: Directory name where to store SSL certificates (string, default: ``/etc/ssl/certs``)
-* ``ssl_certificates_key_path``: Directory name where to store SSL private keys (string, default: ``/etc/ssl/private``)
+* ``ssl_certificates_cnf_path``: Directory name where to store OpenSSL configuration files (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``ssl_certificates_crt_path``: Directory name where to store SSL certificates (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``ssl_certificates_key_path``: Directory name where to store SSL private keys (string, default: see ``vars/{{ ansible_os_family }}.yml``)
 
 * ``ssl_certificates_cnf_path_owner``: Owner name or UID for OpenSSL configuration files directory (string, default: ``0``)
 * ``ssl_certificates_cnf_path_group``: Group name of GID for OpenSSL configuration files directory (string, default: ``0``)
@@ -76,7 +76,17 @@ This requires two files .crt and .key to be available at files/ directory.
 
 ## Dependencies
 
-None.
+This role depends on ``groover.util`` role. This is configured
+for ``ansible-galaxy install`` in **requirements.yml**.
+
+**NOTE**: Requirements are installed as virtual user ``silpion``
+(``silpion.util``).
+
+Be sure to install required roles with
+
+    ansible-galaxy install --role-file requirements.yml
+
+* [groover.util](https://github.com/silpion/ansible-util)
 
 ## Example playbook
 
