@@ -3,5 +3,6 @@
   vars:
     - ssl_certificates_create:
       - name: foo.example.com
+        CN: foo.example.com
   roles:
     - { role: ansible-ssl-certificates }
