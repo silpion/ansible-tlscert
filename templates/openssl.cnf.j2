@@ -22,49 +22,13 @@ output_password = {{ ssl_certificates_openssl_default_P }}
 
 
 [ req_distinguished_name ]
-{% if item.C is defined %}
 C = {{ item.C }}
-{% else %}
-C = {{ ssl_certificates_openssl_default_C }}
-{% endif %}
-{% if item.ST is defined %}
 ST = {{ item.ST }}
-{% else %}
-ST = {{ ssl_certificates_openssl_default_ST }}
-{% endif %}
-{% if item.L is defined %}
 L = {{ item.L }}
-{% else %}
-L = {{ ssl_certificates_openssl_default_L }}
-{% endif %}
-{% if item.O is defined %}
 O = {{ item.O }}
-{% else %}
-O = {{ ssl_certificates_openssl_default_O }}
-{% endif %}
-{% if item.OU is defined %}
 OU = {{ item.OU }}
-{% else %}
-OU = {{ ssl_certificates_openssl_default_OU }} 
-{% endif %}
-{% if item.CN is defined %}
 CN = {{ item.CN }}
-{% else %}
-CN = {{ ssl_certificates_openssl_default_CN }}
-{% endif %}
-{% if item.email is defined %}
 emailAddress = {{ item.email }}
-{% else %}
-{% if ssl_certificates_openssl_default_email != "" %}
-emailAddress = {{ ssl_certificates_openssl_default_email }}
-{% else %}
-{% if item.CN is defined %}
-emailAddress = webmaster@{{ item.CN }}
-{% else %}
-emailAddress = webmaster@{{ ansible_fqdn }}
-{% endif %}
-{% endif %}
-{% endif %}
 
 
 [ req_attributes ]
