@@ -3,5 +3,9 @@
   vars:
     - ssl_certificates_create:
       - name: foo.example.com
+        CN: foo.example.com
+      - name: bar.example.com
+        C: US
+        ST: Michigan
   roles:
     - { role: ansible-ssl-certificates }

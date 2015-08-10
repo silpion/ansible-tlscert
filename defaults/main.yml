@@ -41,8 +41,7 @@ ssl_certificates_openssl_default_bits: 1024                 # default_bits
 ssl_certificates_openssl_default_C: DE                      # countryName_default
 ssl_certificates_openssl_default_ST: Hamburg                # stateOrProvince_default
 ssl_certificates_openssl_default_L: Hamburg                 # localityName_default
-ssl_certificates_openssl_default_O: Silpion IT Solutions    # 0.organizationalUnitName_default
-ssl_certificates_openssl_default_OU: Development SSL        # organizationalUnitName_default
+ssl_certificates_openssl_default_O: Silpion_IT_Solutions    # 0.organizationalUnitName_default
+ssl_certificates_openssl_default_OU: 'Development_SSL'      # organizationalUnitName_default
 ssl_certificates_openssl_default_CN: "{{ ansible_fqdn }}"   # commonName_default
 ssl_certificates_openssl_default_P: 'SILPION!'              # challengePassword_default
-ssl_certificates_openssl_default_email: ""                  # emailAddress

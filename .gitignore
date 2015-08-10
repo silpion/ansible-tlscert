@@ -1,2 +1,5 @@
 Gemfile.lock
 .vagrant/
+
+envvars-vagrant
+\.*\.swp
