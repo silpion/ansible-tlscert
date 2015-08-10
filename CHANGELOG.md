@@ -1,3 +1,15 @@
+# 0.6.0
+
+Alvaro Aleman (3):
+
+* Updated TDD functionality
+* moved template logic for ssl_certificates_create into tasks to make the list reusable
+* removed Debian platform specific serverspec tests
+
+Mark Kusch (1):
+
+* Add CN name to test certificate
+
 # 0.5.0
 
 Mark Kusch (6):
