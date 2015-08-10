@@ -81,12 +81,35 @@
   with_items: ssl_certificates_package_list
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
+- name: Set defaults in ssl_certificates_create
+  tags:
+    - ssl-certificates
+    - ssl-certificates-facts
+  changed_when: False
+  with_items: ssl_certificates_create
+  register: ssl_certificates_localfact_create_result
+  set_fact:
+    name="{{ item.name }}"
+    C="{{ item.C|default(ssl_certificates_openssl_default_C) }}"
+    CN="{{ item.CN|default(ssl_certificates_openssl_default_CN) }}"
+    ST="{{ item.ST|default(ssl_certificates_openssl_default_ST) }}"
+    OU="{{ item.OU|default(ssl_certificates_openssl_default_OU) }}"
+    L="{{ item.L|default(ssl_certificates_openssl_default_L) }}"
+    O="{{ item.O|default(ssl_certificates_openssl_default_O) }}"
+    email="{{ item.email|default(ssl_certificates_openssl_default_email)|default('webmaster@' + item.CN|default(ssl_certificates_openssl_default_CN)) }}"
+
+- name: Format ssl_certificates_create
+  tags:
+    - ssl-certificates
+    - ssl-certificates-facts
+  changed_when: False
+  set_fact: ssl_certificates_localfact_create="{{ ssl_certificates_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
 
 - name: Create openssl.cnf for certificates
   tags: ssl-certificates
   sudo: yes
   no_log: true
-  with_items: ssl_certificates_create
+  with_items: ssl_certificates_localfact_create
   template:
     src=openssl.cnf.j2
     dest={{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
@@ -94,7 +117,7 @@
 - name: Create self-signed SSL certificates
   tags: ssl-certificates
   sudo: yes
-  with_items: ssl_certificates_create
+  with_items: ssl_certificates_localfact_create
   command:
     openssl req
       -newkey "rsa:{{ item.bits|default(ssl_certificates_openssl_default_bits) }}"
