@@ -103,6 +103,7 @@
     - ssl-certificates
     - ssl-certificates-facts
   changed_when: False
+  when: ssl_certificates_localfact_create_result.results is defined
   set_fact: ssl_certificates_localfact_create="{{ ssl_certificates_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
 
 - name: Create openssl.cnf for certificates

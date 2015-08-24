@@ -1,6 +1,7 @@
 ---
 ssl_certificates_create: []
 ssl_certificates_install: []
+ssl_certificates_localfact_create: []
 
 # Configure where certificates/keys are stored
 #
