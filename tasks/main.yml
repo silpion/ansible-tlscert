@@ -1,17 +1,17 @@
 ---
 - name: Assert platform is supported
-  tags: ssl-certificates
+  tags: ssl
   assert:
     that:
       - ansible_os_family in ssl_certificates_supported_platforms
 
 - name: Include OS specific vars
   include_vars: "{{ ansible_os_family }}.yml"
-  tags: ssl-certificates
+  tags: ssl
 
 
 - name: Update apt package cache
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   when: ansible_os_family == 'Debian'
   apt:
@@ -20,7 +20,7 @@
 
 
 - name: Ensure default directories
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   with_items:
     - { dir:
@@ -50,7 +50,7 @@
 
 
 - name: Install Ansible facts.d directory
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   file:
     state=directory
@@ -59,8 +59,8 @@
     mode=0755
     dest=/etc/ansible/facts.d
 
-- name: Install ssl-certificates facts
-  tags: ssl-certificates
+- name: Install ssl facts
+  tags: ssl
   sudo: yes
   template:
     src=facts.j2
@@ -70,21 +70,21 @@
     mode=0644
 
 - name: Re-read facts
-  tags: ssl-certificates
+  tags: ssl
   setup:
     filter=ansible_local
 
 
 - name: Install required packages
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   with_items: ssl_certificates_package_list
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
 - name: Set defaults in ssl_certificates_create
   tags:
-    - ssl-certificates
-    - ssl-certificates-facts
+    - ssl
+    - ssl-facts
   changed_when: False
   with_items: ssl_certificates_create
   register: ssl_certificates_localfact_create_result
@@ -100,14 +100,14 @@
 
 - name: Format ssl_certificates_create
   tags:
-    - ssl-certificates
-    - ssl-certificates-facts
+    - ssl
+    - ssl-facts
   changed_when: False
   when: ssl_certificates_localfact_create_result.results is defined
   set_fact: ssl_certificates_localfact_create="{{ ssl_certificates_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
 
 - name: Create openssl.cnf for certificates
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   no_log: true
   with_items: ssl_certificates_localfact_create
@@ -116,7 +116,7 @@
     dest={{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
 
 - name: Create self-signed SSL certificates
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   with_items: ssl_certificates_localfact_create
   command:
@@ -132,7 +132,7 @@
 
 
 - name: Install SSL certificates
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   with_items: ssl_certificates_install
   copy:
@@ -143,7 +143,7 @@
     mode=0644
 
 - name: Install SSL certificate keys
-  tags: ssl-certificates
+  tags: ssl
   sudo: yes
   with_items: ssl_certificates_install
   copy:

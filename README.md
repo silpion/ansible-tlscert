@@ -1,4 +1,4 @@
-# ssl-certificates
+# ansible-ssl
 
 Create self-signed or install existing SSL certificates.
 
@@ -98,7 +98,7 @@ This is just an example which variables to configure in your inventory!
         - ssl_certificates_create:
           - name: www.example.com
       roles:
-        - { role: ssl-certificates }
+        - { role: ansible-ssl }
 
 <!-- -->
 
