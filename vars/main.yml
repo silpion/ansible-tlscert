@@ -1,4 +1,4 @@
 ---
-ssl_certificates_supported_platforms:
+ssl_supported_platforms:
   - Debian
   - RedHat

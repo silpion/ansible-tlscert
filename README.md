@@ -10,45 +10,45 @@ this role will fail the play.
 
 ## Role Variables
 
-* ``ssl_certificates_create``: Array of SSL certificates to create (array, default: ``[]``)
-* ``ssl_certificates_install``: Array of existing SSL certificates to install (array, default: ``[]``)
+* ``ssl_create``: Array of SSL certificates to create (array, default: ``[]``)
+* ``ssl_install``: Array of existing SSL certificates to install (array, default: ``[]``)
 
-* ``ssl_certificates_cnf_path``: Directory name where to store OpenSSL configuration files (string, default: see ``vars/{{ ansible_os_family }}.yml``)
-* ``ssl_certificates_crt_path``: Directory name where to store SSL certificates (string, default: see ``vars/{{ ansible_os_family }}.yml``)
-* ``ssl_certificates_key_path``: Directory name where to store SSL private keys (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``ssl_cnf_path``: Directory name where to store OpenSSL configuration files (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``ssl_crt_path``: Directory name where to store SSL certificates (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``ssl_key_path``: Directory name where to store SSL private keys (string, default: see ``vars/{{ ansible_os_family }}.yml``)
 
-* ``ssl_certificates_cnf_path_owner``: Owner name or UID for OpenSSL configuration files directory (string, default: ``0``)
-* ``ssl_certificates_cnf_path_group``: Group name of GID for OpenSSL configuration files directory (string, default: ``0``)
-* ``ssl_certificates_cnf_path_mode``: Mode for OpenSSL configuration files directory (string, default: ``700``)
+* ``ssl_cnf_path_owner``: Owner name or UID for OpenSSL configuration files directory (string, default: ``0``)
+* ``ssl_cnf_path_group``: Group name of GID for OpenSSL configuration files directory (string, default: ``0``)
+* ``ssl_cnf_path_mode``: Mode for OpenSSL configuration files directory (string, default: ``700``)
 
-* ``ssl_certificates_crt_path_owner``: Owner name or UID for OpenSSL certificates directory (string, default: ``0``)
-* ``ssl_certificates_crt_path_group``: Group name or GID for OpenSSL certificates directory (string, default: ``0``)
-* ``ssl_certificates_crt_path_mode``: Mode for OpenSSL certificates directory (string, default: ``755``)
+* ``ssl_crt_path_owner``: Owner name or UID for OpenSSL certificates directory (string, default: ``0``)
+* ``ssl_crt_path_group``: Group name or GID for OpenSSL certificates directory (string, default: ``0``)
+* ``ssl_crt_path_mode``: Mode for OpenSSL certificates directory (string, default: ``755``)
 
-* ``ssl_certificates_key_path_owner``: Owner name or UID for OpenSSL private key directory (string, default: ``0``)
-* ``ssl_certificates_key_path_group``: Group name or GID for OpenSSL private key directory (string, default: ``0``)
-* ``ssl_certificates_key_path_mode``: Mode for OpenSSL private key directory (string, default: ``700``)
+* ``ssl_key_path_owner``: Owner name or UID for OpenSSL private key directory (string, default: ``0``)
+* ``ssl_key_path_group``: Group name or GID for OpenSSL private key directory (string, default: ``0``)
+* ``ssl_key_path_mode``: Mode for OpenSSL private key directory (string, default: ``700``)
 
 
 ### Global SSL certificate generation defaults
 
-* ``ssl_certificates_openssl_default_days``: Feeds -days argument to openssl req command (default: ``3650``)
-* ``ssl_certificates_openssl_default_bits``: Feeds -newkey rsa:BITS argument to openssl req command (default: ``1024``)
-* ``ssl_certificates_openssl_default_C``: OpenSSL countryName (default: ``DE``)
-* ``ssl_certificates_openssl_default_ST``: OpenSSL stateOrProvince (default: ``Hamburg``)
-* ``ssl_certificates_openssl_default_L``: OpenSSL localityName (default: ``Hamburg``)
-* ``ssl_certificates_openssl_default_O``: OpenSSL 0.organizationalUnitName (default: ``Silpion IT Solutions``)
-* ``ssl_certificates_openssl_default_OU``: OpenSSL organizationalUnitName (default: ``Development SSL``)
-* ``ssl_certificates_openssl_default_P``: Password for the SSL certificate creation (default: ``SILPION!``)
-* ``ssl_certificates_openssl_default_email``: Email for the SSL certificate creation (default: ``webmaster@{{ ansible_fqdn }}``)
+* ``ssl_openssl_default_days``: Feeds -days argument to openssl req command (default: ``3650``)
+* ``ssl_openssl_default_bits``: Feeds -newkey rsa:BITS argument to openssl req command (default: ``1024``)
+* ``ssl_openssl_default_C``: OpenSSL countryName (default: ``DE``)
+* ``ssl_openssl_default_ST``: OpenSSL stateOrProvince (default: ``Hamburg``)
+* ``ssl_openssl_default_L``: OpenSSL localityName (default: ``Hamburg``)
+* ``ssl_openssl_default_O``: OpenSSL 0.organizationalUnitName (default: ``Silpion IT Solutions``)
+* ``ssl_openssl_default_OU``: OpenSSL organizationalUnitName (default: ``Development SSL``)
+* ``ssl_openssl_default_P``: Password for the SSL certificate creation (default: ``SILPION!``)
+* ``ssl_openssl_default_email``: Email for the SSL certificate creation (default: ``webmaster@{{ ansible_fqdn }}``)
 
-### ssl_certificates_create
+### ssl_create
 
 Any global variable can be overridden for each certificate from
-``ssl_certificates_create`` array, e.g:
+``ssl_create`` array, e.g:
 
     vars:
-      - ssl_certificates_create:
+      - ssl_create:
         - name: test-cert
           days: 365
           bits: 2048
@@ -60,16 +60,16 @@ Any global variable can be overridden for each certificate from
           .
           .
 
-Variables not provided in a ``name`` dictionary within ``ssl_certificates_create``
+Variables not provided in a ``name`` dictionary within ``ssl_create``
 array default to the global defaults.
 
-### ssl_certificates_install
+### ssl_install
 
 The role will copy existing certificate/key pairs to a managed node
-if ``ssl_certificates_install`` variable is set.
+if ``ssl_install`` variable is set.
 
     vars:
-      - ssl_certificates_install:
+      - ssl_install:
         - name: foo.domain.tld
 
 This requires two files .crt and .key to be available at files/ directory.
@@ -95,7 +95,7 @@ This is just an example which variables to configure in your inventory!
 
     - hosts: lbs
       vars:
-        - ssl_certificates_create:
+        - ssl_create:
           - name: www.example.com
       roles:
         - { role: ansible-ssl }
@@ -104,7 +104,7 @@ This is just an example which variables to configure in your inventory!
 
     - hosts: lbs
       vars:
-        - ssl_certificates_install:
+        - ssl_install:
           - name: www.example.com
 
 ## License

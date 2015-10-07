@@ -3,7 +3,7 @@
   tags: ssl
   assert:
     that:
-      - ansible_os_family in ssl_certificates_supported_platforms
+      - ansible_os_family in ssl_supported_platforms
 
 - name: Include OS specific vars
   include_vars: "{{ ansible_os_family }}.yml"
@@ -24,22 +24,22 @@
   sudo: yes
   with_items:
     - { dir:
-        "{{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}",
-          mode: "{{ ssl_certificates_cnf_path_mode }}",
-          owner: "{{ ssl_certificates_cnf_path_owner }}",
-          group: "{{ ssl_certificates_cnf_path_group }}"
+        "{{ ssl_cnf_path|default(ssl_cnf_path_default) }}",
+          mode: "{{ ssl_cnf_path_mode }}",
+          owner: "{{ ssl_cnf_path_owner }}",
+          group: "{{ ssl_cnf_path_group }}"
       }
     - { dir:
-        "{{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}",
-          mode: "{{ ssl_certificates_crt_path_mode  }}",
-          owner: "{{ ssl_certificates_crt_path_owner }}",
-          group: "{{ ssl_certificates_crt_path_group }}"
+        "{{ ssl_crt_path|default(ssl_crt_path_default) }}",
+          mode: "{{ ssl_crt_path_mode  }}",
+          owner: "{{ ssl_crt_path_owner }}",
+          group: "{{ ssl_crt_path_group }}"
       }
     - { dir:
-        "{{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}",
-          mode: "{{ ssl_certificates_key_path_mode }}",
-          owner: "{{ ssl_certificates_key_path_owner }}",
-          group: "{{ ssl_certificates_key_path_group }}"
+        "{{ ssl_key_path|default(ssl_key_path_default) }}",
+          mode: "{{ ssl_key_path_mode }}",
+          owner: "{{ ssl_key_path_owner }}",
+          group: "{{ ssl_key_path_group }}"
       }
   file:
     state=directory
@@ -78,66 +78,66 @@
 - name: Install required packages
   tags: ssl
   sudo: yes
-  with_items: ssl_certificates_package_list
+  with_items: ssl_package_list
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
-- name: Set defaults in ssl_certificates_create
+- name: Set defaults in ssl_create
   tags:
     - ssl
     - ssl-facts
   changed_when: False
-  with_items: ssl_certificates_create
-  register: ssl_certificates_localfact_create_result
+  with_items: ssl_create
+  register: ssl_localfact_create_result
   set_fact:
     name="{{ item.name }}"
-    C="{{ item.C|default(ssl_certificates_openssl_default_C) }}"
-    CN="{{ item.CN|default(ssl_certificates_openssl_default_CN) }}"
-    ST="{{ item.ST|default(ssl_certificates_openssl_default_ST) }}"
-    OU="{{ item.OU|default(ssl_certificates_openssl_default_OU) }}"
-    L="{{ item.L|default(ssl_certificates_openssl_default_L) }}"
-    O="{{ item.O|default(ssl_certificates_openssl_default_O) }}"
-    email="{{ item.email|default(ssl_certificates_openssl_default_email)|default('webmaster@' + item.CN|default(ssl_certificates_openssl_default_CN)) }}"
+    C="{{ item.C|default(ssl_openssl_default_C) }}"
+    CN="{{ item.CN|default(ssl_openssl_default_CN) }}"
+    ST="{{ item.ST|default(ssl_openssl_default_ST) }}"
+    OU="{{ item.OU|default(ssl_openssl_default_OU) }}"
+    L="{{ item.L|default(ssl_openssl_default_L) }}"
+    O="{{ item.O|default(ssl_openssl_default_O) }}"
+    email="{{ item.email|default(ssl_openssl_default_email)|default('webmaster@' + item.CN|default(ssl_openssl_default_CN)) }}"
 
-- name: Format ssl_certificates_create
+- name: Format ssl_create
   tags:
     - ssl
     - ssl-facts
   changed_when: False
-  when: ssl_certificates_localfact_create_result.results is defined
-  set_fact: ssl_certificates_localfact_create="{{ ssl_certificates_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
+  when: ssl_localfact_create_result.results is defined
+  set_fact: ssl_localfact_create="{{ ssl_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
 
 - name: Create openssl.cnf for certificates
   tags: ssl
   sudo: yes
   no_log: true
-  with_items: ssl_certificates_localfact_create
+  with_items: ssl_localfact_create
   template:
     src=openssl.cnf.j2
-    dest={{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
+    dest={{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
 
 - name: Create self-signed SSL certificates
   tags: ssl
   sudo: yes
-  with_items: ssl_certificates_localfact_create
+  with_items: ssl_localfact_create
   command:
     openssl req
-      -newkey "rsa:{{ item.bits|default(ssl_certificates_openssl_default_bits) }}"
+      -newkey "rsa:{{ item.bits|default(ssl_openssl_default_bits) }}"
       -nodes
       -x509
-      -days {{ item.days|default(ssl_certificates_openssl_default_days) }}
-      -keyout {% if ssl_certificates_key_path is defined %}{{ item.key|default(ssl_certificates_key_path + "/" + item.name + ".pem") }}{% else %}{{ item.key|default(ssl_certificates_key_path_default) + "/" + item.name + ".pem"}}{% endif %}
-      -out {% if ssl_certificates_crt_path is defined %}{{ item.crt|default(ssl_certificates_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_certificates_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
-      -config {{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
-    creates={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}/{{ item.name }}.crt
+      -days {{ item.days|default(ssl_openssl_default_days) }}
+      -keyout {% if ssl_key_path is defined %}{{ item.key|default(ssl_key_path + "/" + item.name + ".pem") }}{% else %}{{ item.key|default(ssl_key_path_default) + "/" + item.name + ".pem"}}{% endif %}
+      -out {% if ssl_crt_path is defined %}{{ item.crt|default(ssl_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
+      -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
+    creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
 
 
 - name: Install SSL certificates
   tags: ssl
   sudo: yes
-  with_items: ssl_certificates_install
+  with_items: ssl_install
   copy:
     src=files/{{ item.name }}.crt
-    dest={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}/{{ item.name }}.crt
+    dest={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
     owner=0
     group=0
     mode=0644
@@ -145,10 +145,10 @@
 - name: Install SSL certificate keys
   tags: ssl
   sudo: yes
-  with_items: ssl_certificates_install
+  with_items: ssl_install
   copy:
     src=files/{{ item.name }}.key
-    dest={{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}/{{ item.name }}.pem
+    dest={{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name }}.pem
     owner=0
     group=0
     mode=0600
