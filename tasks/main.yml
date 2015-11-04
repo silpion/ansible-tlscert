@@ -24,24 +24,18 @@
   tags: ssl
   sudo: yes
   with_items:
-    - { dir:
-        "{{ ssl_cnf_path|default(ssl_cnf_path_default) }}",
-          mode: "{{ ssl_cnf_path_mode }}",
-          owner: "{{ ssl_cnf_path_owner }}",
-          group: "{{ ssl_cnf_path_group }}"
-      }
-    - { dir:
-        "{{ ssl_crt_path|default(ssl_crt_path_default) }}",
-          mode: "{{ ssl_crt_path_mode  }}",
-          owner: "{{ ssl_crt_path_owner }}",
-          group: "{{ ssl_crt_path_group }}"
-      }
-    - { dir:
-        "{{ ssl_key_path|default(ssl_key_path_default) }}",
-          mode: "{{ ssl_key_path_mode }}",
-          owner: "{{ ssl_key_path_owner }}",
-          group: "{{ ssl_key_path_group }}"
-      }
+    - dir: "{{ ssl_cnf_path|default(ssl_cnf_path_default) }}"
+      mode: "{{ ssl_cnf_path_mode }}"
+      owner: "{{ ssl_cnf_path_owner }}"
+      group: "{{ ssl_cnf_path_group }}"
+    - dir: "{{ ssl_crt_path|default(ssl_crt_path_default) }}"
+      mode: "{{ ssl_crt_path_mode  }}"
+      owner: "{{ ssl_crt_path_owner }}"
+      group: "{{ ssl_crt_path_group }}"
+    - dir: "{{ ssl_key_path|default(ssl_key_path_default) }}"
+      mode: "{{ ssl_key_path_mode }}"
+      owner: "{{ ssl_key_path_owner }}"
+      group: "{{ ssl_key_path_group }}"
   file:
     state=directory
     dest={{ item.dir }}
