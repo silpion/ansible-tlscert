@@ -43,23 +43,6 @@
     owner={{ item.owner }}
     group={{ item.group }}
 
-
-- name: Install ssl facts
-  tags: ssl
-  sudo: yes
-  template:
-    src=facts.j2
-    dest=/etc/ansible/facts.d/ssl-certificates.fact
-    owner=0
-    group=0
-    mode=0644
-
-- name: Re-read facts
-  tags: ssl
-  setup:
-    filter=ansible_local
-
-
 - name: Install required packages
   tags: ssl
   sudo: yes
@@ -136,3 +119,18 @@
       -out {% if ssl_crt_path is defined %}{{ item.crt|default(ssl_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
       -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
     creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
+
+- name: Install ssl facts
+  tags: ssl
+  sudo: yes
+  template:
+    src=facts.j2
+    dest=/etc/ansible/facts.d/ssl-certificates.fact
+    owner=0
+    group=0
+    mode=0644
+
+- name: Re-read facts
+  tags: ssl
+  setup:
+    filter=ansible_local
