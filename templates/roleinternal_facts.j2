@@ -1,0 +1,14 @@
+---
+{% if ssl_create|length > 0 %}
+ssl_localfact_create:
+{% for cert in ssl_create %}
+  - name: {{ cert.name }}
+    C: {{ cert.C|default(ssl_openssl_default_C) }}
+    CN: {{ cert.CN|default(ssl_openssl_default_CN) }}
+    ST: {{ cert.ST|default(ssl_openssl_default_ST) }}
+    OU: {{ cert.OU|default(ssl_openssl_default_OU) }}
+    L: {{ cert.L|default(ssl_openssl_default_L) }}
+    O: {{ cert.O|default(ssl_openssl_default_O) }}
+    email: {{ cert.email|default(ssl_openssl_default_email)|default('webmaster@' + cert.CN|default(ssl_openssl_default_CN)) }}
+{% endfor %}
+{% endif %}

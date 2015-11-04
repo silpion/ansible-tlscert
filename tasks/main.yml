@@ -7,8 +7,24 @@
       - ansible_local['util'] is defined
 
 - name: Include OS specific vars
-  include_vars: "{{ ansible_os_family }}.yml"
   tags: ssl
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Template roleinternal vars file
+  tags: ssl
+  changed_when: false
+  always_run: true
+  local_action: template
+  args:
+    src: roleinternal_facts.j2
+    dest: "{{ ssl_localfacts }}"
+    mode: "0750"
+
+- name: Include roleinternal vars file
+  tags: ssl
+  changed_when: false
+  always_run: true
+  include_vars: "{{ ssl_localfacts }}"
 
 
 - name: Update apt package cache
@@ -70,31 +86,6 @@
     owner=0
     group=0
     mode=0600
-
-- name: Set defaults in ssl_create
-  tags:
-    - ssl
-    - ssl-facts
-  changed_when: False
-  with_items: ssl_create
-  register: ssl_localfact_create_result
-  set_fact:
-    name="{{ item.name }}"
-    C="{{ item.C|default(ssl_openssl_default_C) }}"
-    CN="{{ item.CN|default(ssl_openssl_default_CN) }}"
-    ST="{{ item.ST|default(ssl_openssl_default_ST) }}"
-    OU="{{ item.OU|default(ssl_openssl_default_OU) }}"
-    L="{{ item.L|default(ssl_openssl_default_L) }}"
-    O="{{ item.O|default(ssl_openssl_default_O) }}"
-    email="{{ item.email|default(ssl_openssl_default_email)|default('webmaster@' + item.CN|default(ssl_openssl_default_CN)) }}"
-
-- name: Format ssl_create
-  tags:
-    - ssl
-    - ssl-facts
-  changed_when: False
-  when: ssl_localfact_create_result.results is defined
-  set_fact: ssl_localfact_create="{{ ssl_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
 
 - name: Create openssl.cnf for certificates
   tags: ssl
