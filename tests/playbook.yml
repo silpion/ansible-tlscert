@@ -8,5 +8,6 @@
         C: US
         ST: Michigan
   roles:
-    - { role: ansible-ssl, ssl_certificates_create: [] }
-    - { role: ansible-ssl }
+    - role: ansible-ssl
+      ssl_certificates_create: []
+    - role: ansible-ssl
