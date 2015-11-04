@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars:
-    - ssl_certificates_create:
+    - ssl_create:
       - name: foo.example.com
         CN: foo.example.com
       - name: bar.example.com
