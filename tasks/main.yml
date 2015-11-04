@@ -66,6 +66,28 @@
   with_items: ssl_package_list
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
+- name: Install SSL certificates
+  tags: ssl
+  sudo: yes
+  with_items: ssl_install
+  copy:
+    src=files/{{ item.name|default(item) }}.crt
+    dest={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name|default(item) }}.crt
+    owner=0
+    group=0
+    mode=0644
+
+- name: Install SSL certificate keys
+  tags: ssl
+  sudo: yes
+  with_items: ssl_install
+  copy:
+    src=files/{{ item.name|default(item) }}.key
+    dest={{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name|default(item) }}.pem
+    owner=0
+    group=0
+    mode=0600
+
 - name: Set defaults in ssl_create
   tags:
     - ssl
@@ -114,26 +136,3 @@
       -out {% if ssl_crt_path is defined %}{{ item.crt|default(ssl_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
       -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
     creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
-
-
-- name: Install SSL certificates
-  tags: ssl
-  sudo: yes
-  with_items: ssl_install
-  copy:
-    src=files/{{ item.name|default(item) }}.crt
-    dest={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name|default(item) }}.crt
-    owner=0
-    group=0
-    mode=0644
-
-- name: Install SSL certificate keys
-  tags: ssl
-  sudo: yes
-  with_items: ssl_install
-  copy:
-    src=files/{{ item.name|default(item) }}.key
-    dest={{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name|default(item) }}.pem
-    owner=0
-    group=0
-    mode=0600
