@@ -4,6 +4,7 @@
   assert:
     that:
       - ansible_os_family in ssl_supported_platforms
+      - ansible_local['util'] is defined
 
 - name: Include OS specific vars
   include_vars: "{{ ansible_os_family }}.yml"
