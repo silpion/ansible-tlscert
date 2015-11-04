@@ -49,16 +49,6 @@
     group={{ item.group }}
 
 
-- name: Install Ansible facts.d directory
-  tags: ssl
-  sudo: yes
-  file:
-    state=directory
-    owner=0
-    group=0
-    mode=0755
-    dest=/etc/ansible/facts.d
-
 - name: Install ssl facts
   tags: ssl
   sudo: yes
