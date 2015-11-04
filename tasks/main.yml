@@ -121,8 +121,8 @@
   sudo: yes
   with_items: ssl_install
   copy:
-    src=files/{{ item.name }}.crt
-    dest={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
+    src=files/{{ item.name|default(item) }}.crt
+    dest={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name|default(item) }}.crt
     owner=0
     group=0
     mode=0644
@@ -132,8 +132,8 @@
   sudo: yes
   with_items: ssl_install
   copy:
-    src=files/{{ item.name }}.key
-    dest={{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name }}.pem
+    src=files/{{ item.name|default(item) }}.key
+    dest={{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name|default(item) }}.pem
     owner=0
     group=0
     mode=0600
