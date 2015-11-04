@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-CERTPATH=${1:-{{ssl_roleinternal_crt_path}}}
-KEYPATH=${2:-{{ssl_roleinternal_key_path}}}
+CERTPATH=${1:-{{ ssl_roleinternal_all_crt_paths }}}
+KEYPATH=${2:-{{ ssl_roleinternal_all_key_paths }}}
 
 # Get all valid PEM certificates
 CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate$" |grep -v 'ca-certificates.crt' |cut -d: -f1)

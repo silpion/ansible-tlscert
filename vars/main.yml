@@ -2,3 +2,5 @@
 ssl_supported_platforms:
   - Debian
   - RedHat
+
+ssl_gather_cert_facts_scriptpath: '/usr/local/sbin/gather_cert_facts.sh'

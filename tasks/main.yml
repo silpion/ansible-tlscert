@@ -120,6 +120,24 @@
       -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
     creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
 
+- name: Deploy gather_cert_facts script
+  tags: ssl
+  become: true
+  template:
+    src: gather_cert_facts.sh.j2
+    dest: "{{ ssl_gather_cert_facts_scriptpath }}"
+    owner: 0
+    group: 0
+    mode: '0755'
+
+- name: Gather facts about existing certificates
+  tags: ssl
+  become: true
+  always_run: true
+  changed_when: false
+  register: ssl_internal_gatheredcerts
+  command: "{{ ssl_gather_cert_facts_scriptpath }}"
+
 - name: Install ssl facts
   tags: ssl
   sudo: yes
