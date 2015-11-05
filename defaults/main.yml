@@ -44,5 +44,4 @@ ssl_openssl_default_ST: Hamburg                # stateOrProvince_default
 ssl_openssl_default_L: Hamburg                 # localityName_default
 ssl_openssl_default_O: Silpion_IT_Solutions    # 0.organizationalUnitName_default
 ssl_openssl_default_OU: 'Development_SSL'      # organizationalUnitName_default
-ssl_openssl_default_CN: "{{ ansible_fqdn }}"   # commonName_default
 ssl_openssl_default_P: 'SILPION!'              # challengePassword_default

@@ -94,7 +94,7 @@
   with_items: ssl_localfact_create
   template:
     src=openssl.cnf.j2
-    dest={{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
+    dest={{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.CN }}-openssl.cnf
 
 - name: Create self-signed SSL certificates
   tags: ssl
@@ -106,10 +106,10 @@
       -nodes
       -x509
       -days {{ item.days|default(ssl_openssl_default_days) }}
-      -keyout {% if ssl_key_path is defined %}{{ item.key|default(ssl_key_path + "/" + item.name + ".pem") }}{% else %}{{ item.key|default(ssl_key_path_default) + "/" + item.name + ".pem"}}{% endif %}
-      -out {% if ssl_crt_path is defined %}{{ item.crt|default(ssl_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
-      -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.name }}-openssl.cnf
-    creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name }}.crt
+      -keyout {% if ssl_key_path is defined %}{{ item.key|default(ssl_key_path + "/" + item.CN + ".pem") }}{% else %}{{ item.key|default(ssl_key_path_default) + "/" + item.CN + ".pem"}}{% endif %}
+      -out {% if ssl_crt_path is defined %}{{ item.crt|default(ssl_crt_path + "/" + item.CN + ".crt") }}{% else %}{{ item.crt|default(ssl_crt_path_default) + "/" + item.CN + ".crt" }}{% endif %}
+      -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.CN }}-openssl.cnf
+    creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.CN }}.crt
 
 - name: Install ssl facts
   tags: ssl

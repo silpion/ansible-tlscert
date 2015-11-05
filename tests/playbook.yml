@@ -2,9 +2,8 @@
 - hosts: all
   vars:
     - ssl_create:
-      - name: foo.example.com
-        CN: foo.example.com
-      - name: bar.example.com
+      - CN: foo.example.com
+      - CN: bar.example.com
         C: US
         ST: Michigan
     - ssl_install:

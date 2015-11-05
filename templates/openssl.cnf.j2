@@ -9,7 +9,7 @@ default_bits = {{ ssl_openssl_default_bits }}
 {% if item.key is defined %}
 default_keyfile = {{ item.key }}
 {% else %}
-default_keyfile = {{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name }}.key
+default_keyfile = {{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.CN }}.key
 {% endif %}
 distinguished_name = req_distinguished_name
 attributes = req_attributes

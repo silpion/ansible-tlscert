@@ -32,8 +32,7 @@ A list of self-signed certificates to create
 
 
     ssl_create:
-      - name: test-cert           # Required: Name for the certificate
-        CN: test-cert.org         # Required: Common name the certificate is valid for
+      - CN: test-cert.org         # Required: Common name the certificate is valid for
         C: US                     # Optional: Country
         ST: Michigan              # Optional: State
         OU: Fire_department       # Optional: Organizational unit
