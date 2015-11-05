@@ -24,7 +24,7 @@ a ``{{ name }}.crt`` and a ``{{ name }}.key`` file to be available at
 ``files/`` directory.
 
       ssl_install:
-        - name: foo.domain.tld
+        - foo.domain.tld
 
 ### ssl_create
 
