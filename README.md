@@ -28,10 +28,11 @@ a ``{{ name }}.crt`` and a ``{{ name }}.key`` file to be available at
 
 ### ssl_create
 
-A list of self-signed certificates to create
+A list of self-signed certificates to generate.
 
 
     ssl_create:
+      - my.tld.com                # Short form, allows to configure domain only
       - CN: test-cert.org         # Required: Common name the certificate is valid for
         C: US                     # Optional: Country
         ST: Michigan              # Optional: State

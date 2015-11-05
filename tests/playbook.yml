@@ -2,7 +2,7 @@
 - hosts: all
   vars:
     - ssl_create:
-      - CN: foo.example.com
+      - foo.example.com
       - CN: bar.example.com
         C: US
         ST: Michigan
