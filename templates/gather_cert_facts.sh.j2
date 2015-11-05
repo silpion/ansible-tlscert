@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-CERTPATH=${1:-{{ ssl_roleinternal_all_crt_paths }}}
-KEYPATH=${2:-{{ ssl_roleinternal_all_key_paths }}}
+CERTPATH=${1:-'{{ ssl_roleinternal_all_crt_paths|join(' ') }}'}
+KEYPATH=${2:-'{{ ssl_roleinternal_all_key_paths|join(' ') }}'}
 
 # Get all valid PEM certificates
 CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate$" |grep -v 'ca-certificates.crt' |cut -d: -f1)
@@ -34,8 +34,8 @@ for cert in $CERTS; do
         # Generate a yaml dict entry for each domain
         for domain in $DOMAINS; do
                 echo "  $domain:"
-                echo "    crt: $cert"
-                echo "    key: $KEY"
+                echo "    crt: '$cert'"
+                echo "    key: '$KEY'"
         done
 
 done
