@@ -1,4 +1,7 @@
 ---
+ssl_cnf_path: {{ ssl_cnf_path|default(ssl_cnf_path_default) }}
+ssl_crt_path: {{ ssl_crt_path|default(ssl_crt_path_default) }}
+ssl_key_path: {{ ssl_key_path|default(ssl_key_path_default) }}
 {% if ssl_create|length > 0 %}
 ssl_localfact_create:
 {% for cert in ssl_create %}

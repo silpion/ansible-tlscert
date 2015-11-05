@@ -40,15 +40,15 @@
   tags: ssl
   sudo: yes
   with_items:
-    - dir: "{{ ssl_cnf_path|default(ssl_cnf_path_default) }}"
+    - dir: "{{ ssl_cnf_path }}"
       mode: "{{ ssl_cnf_path_mode }}"
       owner: "{{ ssl_cnf_path_owner }}"
       group: "{{ ssl_cnf_path_group }}"
-    - dir: "{{ ssl_crt_path|default(ssl_crt_path_default) }}"
+    - dir: "{{ ssl_crt_path }}"
       mode: "{{ ssl_crt_path_mode  }}"
       owner: "{{ ssl_crt_path_owner }}"
       group: "{{ ssl_crt_path_group }}"
-    - dir: "{{ ssl_key_path|default(ssl_key_path_default) }}"
+    - dir: "{{ ssl_key_path }}"
       mode: "{{ ssl_key_path_mode }}"
       owner: "{{ ssl_key_path_owner }}"
       group: "{{ ssl_key_path_group }}"
@@ -71,7 +71,7 @@
   with_items: ssl_install
   copy:
     src=files/{{ item.name|default(item) }}.crt
-    dest={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.name|default(item) }}.crt
+    dest={{ ssl_crt_path }}/{{ item.name|default(item) }}.crt
     owner=0
     group=0
     mode=0644
@@ -82,7 +82,7 @@
   with_items: ssl_install
   copy:
     src=files/{{ item.name|default(item) }}.key
-    dest={{ ssl_key_path|default(ssl_key_path_default) }}/{{ item.name|default(item) }}.pem
+    dest={{ ssl_key_path }}/{{ item.name|default(item) }}.pem
     owner=0
     group=0
     mode=0600
@@ -94,7 +94,7 @@
   with_items: ssl_localfact_create
   template:
     src=openssl.cnf.j2
-    dest={{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.CN }}-openssl.cnf
+    dest={{ ssl_cnf_path }}/{{ item.CN }}-openssl.cnf
 
 - name: Create self-signed SSL certificates
   tags: ssl
@@ -106,10 +106,10 @@
       -nodes
       -x509
       -days {{ item.days|default(ssl_openssl_default_days) }}
-      -keyout {% if ssl_key_path is defined %}{{ item.key|default(ssl_key_path + "/" + item.CN + ".pem") }}{% else %}{{ item.key|default(ssl_key_path_default) + "/" + item.CN + ".pem"}}{% endif %}
-      -out {% if ssl_crt_path is defined %}{{ item.crt|default(ssl_crt_path + "/" + item.CN + ".crt") }}{% else %}{{ item.crt|default(ssl_crt_path_default) + "/" + item.CN + ".crt" }}{% endif %}
-      -config {{ ssl_cnf_path|default(ssl_cnf_path_default) }}/{{ item.CN }}-openssl.cnf
-    creates={{ ssl_crt_path|default(ssl_crt_path_default) }}/{{ item.CN }}.crt
+      -keyout {{ item.key|default(ssl_key_path + "/" + item.CN + ".pem") }}
+      -out {{ item.crt|default(ssl_crt_path + "/" + item.CN + ".crt") }}
+      -config {{ ssl_cnf_path }}/{{ item.CN }}-openssl.cnf
+    creates={{ ssl_crt_path }}/{{ item.CN }}.crt
 
 - name: Install ssl facts
   tags: ssl
