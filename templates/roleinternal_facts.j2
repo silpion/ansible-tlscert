@@ -1,4 +1,12 @@
 ---
+ssl_roleinternal_all_crt_paths:
+{% if ssl_crt_path is defined %}  - {{ ssl_crt_path }}{% endif %}
+  - {{ ssl_crt_path_default }}
+
+ssl_roleinternal_all_key_paths:
+{% if ssl_key_path is defined %}  - {{ ssl_key_path }}{% endif %}
+  - {{ ssl_key_path_default }}
+
 {% if ssl_create|length > 0 %}
 ssl_localfact_create:
 {% for cert in ssl_create %}
