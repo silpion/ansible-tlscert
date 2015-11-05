@@ -1,3 +1,4 @@
+#!/bin/bash
 {% if util_template_use_cow %}
 #  --------------------
 # ( Managed by Ansible )
@@ -16,7 +17,73 @@
 # {{ ansible_managed }}
 {% endif %}
 
-[general]
-cnf_path={{ ssl_cnf_path|default(ssl_cnf_path_default) }}
-crt_path={{ ssl_crt_path|default(ssl_crt_path_default) }}
-key_path={{ ssl_key_path|default(ssl_key_path_default) }}
+# DESCRIPTION
+# A small script that returns json-formatted information
+# about TLS certificates on this host which can then be used by other roles
+
+set -euo pipefail
+
+# This script needs to be run as root
+if [[ $(id -u) != 0 ]]; then
+        sudo $0
+        exit 0
+fi
+
+CONFPATH=${1:-'{{ ssl_cnf_path|default(ssl_cnf_path_default) }}'}
+CERTPATH=${2:-'{{ ssl_crt_path|default(ssl_crt_path_default) }}'}
+KEYPATH=${3:-'{{ ssl_key_path|default(ssl_key_path_default) }}'}
+
+# Get all valid PEM certificates
+CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate$" |grep -v 'ca-certificates.crt' |cut -d: -f1)
+
+# Get all certificate keys
+KEYS=$(find $KEYPATH |xargs file|grep 'ASCII text'|cut -d: -f1)
+
+# Print general information
+echo "{"
+echo "  \"general\": {"
+echo "    \"cnf_path\": \"$CONFPATH\","
+echo "    \"crt_path\": \"$CERTPATH\","
+echo "    \"key_path\": \"$KEYPATH\""
+echo "  },"
+echo "  \"certs\": {"
+
+# JSON requires every but the last element of a list to be terminated with a ","
+# Since we can not find out if we are the last element, we prepend every but the first element with a comma
+ISFIRSTELEMENT=true
+
+# Iterate through the certs
+for cert in $CERTS; do
+
+        # Get the CN and if existant all subject alternate names
+        DOMAINS=$(openssl x509 -in $cert  -noout -text|egrep 'Subject.*CN.*|DNS'|tr -d '\n| |,'|awk -F"CN=|DNS:" '{$1=""; print $0}'|sed 's/\/emailAddress=.*//'|tr ' ' '\n'|uniq)
+
+        # Get the matching key
+        CERTMODULUS=$(openssl x509 -noout -modulus -in $cert)
+        KEY=""
+        for file in $KEYS; do
+                if [[ $CERTMODULUS == $(openssl rsa -noout -modulus -in $file) ]]; then
+                        KEY=$file
+                        break
+                fi
+        done
+
+        # Generate a json dict entry for each domain
+        for domain in $DOMAINS; do
+                
+                # All but the first element must be preprended with a comma
+                if [[ $ISFIRSTELEMENT == 'true' ]]; then
+                        ISFIRSTELEMENT=false
+                else
+                        echo "    ,"
+                fi
+                echo "    \"$domain\": {"
+                echo "      \"crt\": \"$cert\","
+                echo "      \"key\": \"$KEY\""
+                echo "    }"
+        done
+
+done
+
+echo "  }"
+echo "}"

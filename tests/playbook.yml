@@ -14,3 +14,7 @@
     - role: ansible-ssl
       ssl_certificates_create: []
     - role: ansible-ssl
+  tasks:
+    - name: Display ansible_local.tls_certificates
+      tags: tls_certificates
+      debug: msg="{{ ansible_local.tls_certificates }}"
