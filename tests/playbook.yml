@@ -7,8 +7,6 @@
       - name: bar.example.com
         C: US
         ST: Michigan
-      - name: example.com
-        CN: example.com
     - ssl_install:
       - example.com
       - name: example.com
