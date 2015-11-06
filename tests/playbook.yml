@@ -1,12 +1,12 @@
 ---
 - hosts: all
   vars:
-    - ssl_create:
+    ssl_create:
       - foo.example.com
       - CN: bar.example.com
         C: US
         ST: Michigan
-    - ssl_install:
+    ssl_install:
       - example.com
       - name: example.com
   roles:

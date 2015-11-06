@@ -82,7 +82,7 @@
   with_items: ssl_install
   copy:
     src=files/{{ item.name|default(item) }}.key
-    dest={{ ssl_key_path }}/{{ item.name|default(item) }}.pem
+    dest={{ ssl_key_path }}/{{ item.name|default(item) }}.key
     owner=0
     group=0
     mode=0600
