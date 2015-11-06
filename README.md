@@ -21,7 +21,7 @@ None
 
 A list of certificates to copy over to the managed node. This requires
 a ``{{ name }}.crt`` and a ``{{ name }}.key`` file to be available at
-``files/`` directory.
+``{{ ssl_install_sourcedirectory|default('files') }}/`` directory.
 
       ssl_install:
         - foo.domain.tld
@@ -71,6 +71,8 @@ A list of self-signed certificates to generate.
 * ``ssl_key_path_owner``: Owner name or UID for OpenSSL private key directory (string, default: ``0``)
 * ``ssl_key_path_group``: Group name or GID for OpenSSL private key directory (string, default: ``0``)
 * ``ssl_key_path_mode``: Mode for OpenSSL private key directory (string, default: ``700``)
+
+* ``ssl_install_sourcedirectory``: Basedir to look into for ssl\_install certs (string, default: ``files``)
 
 ## Dependencies
 
