@@ -88,6 +88,23 @@ Be sure to install required roles with
 
 * [groover.util](https://github.com/silpion/ansible-util)
 
+## Facts
+
+This role provides various facts. First off, it deploys a script that tries to find all available certificates.
+These facts can be used by other roles to automatically find the right certificate and key:
+
+```yml
+dommainname: 'example.com'
+ansible_local.tls_certificates.certs.{{ domainname }}.crt
+ansible_local.tls_certificates.certs.{{ domainname }}.key
+
+```
+
+Also, there is a fact named ``ssl_changed`` which gets set to ``true`` if changes happen to the deployed certificates.
+This is usefull to e.G. handle reloads after a new certificate was deployed for a specific domain.
+**Note:** This fact is provided via a handler, this means it can only be accessed in a play that gets executed after the one
+that runs this role!
+
 ## Example playbook
 
 **NOTE** Be advised to NOT add configuration variables to the playbook.
@@ -96,16 +113,16 @@ This is just an example which variables to configure in your inventory!
     - hosts: lbs
       vars:
         - ssl_create:
-          - name: www.example.com
+          - www.example.com
       roles:
-        - { role: ansible-ssl }
+        - role: ansible-ssl
 
 <!-- -->
 
     - hosts: lbs
       vars:
         - ssl_install:
-          - name: www.example.com
+          - www.example.com
 
 ## License
 
@@ -138,8 +155,9 @@ Ruby with rake and bundler available.
 
 ## Author information
 
-Anja Siek @anja.siek silpion.de
-Mark Kusch @mark.kusch silpion.de
+* Anja Siek @anja.siek silpion.de
+* Mark Kusch @mark.kusch silpion.de
+* Alvaro Aleman @aleman silpion.de
 
 
 <!-- vim: set nofen ts=4 sw=4 et: -->
