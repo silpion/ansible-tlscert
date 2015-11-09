@@ -1,40 +1,40 @@
 ---
 - name: Assert platform is supported
-  tags: ssl
+  tags: tlscert
   assert:
     that:
-      - ansible_os_family in ssl_supported_platforms
+      - ansible_os_family in tlscert_supported_platforms
       - ansible_local['util'] is defined
 
 - name: Include OS specific vars
-  tags: ssl
+  tags: tlscert
   include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Template roleinternal vars file
-  tags: ssl
-  changed_when: false
-  always_run: true
+  tags: tlscert
+  changed_when: False
+  always_run: True
   local_action: template
   args:
     src: roleinternal_facts.j2
-    dest: "{{ ssl_localfacts }}"
-    mode: "0750"
+    dest: "{{ tlscert_localfacts }}"
+    mode: "0640"
 
 - name: Include roleinternal vars file
-  tags: ssl
-  changed_when: false
-  always_run: true
-  include_vars: "{{ ssl_localfacts }}"
+  tags: tlscert
+  changed_when: False
+  always_run: True
+  include_vars: "{{ tlscert_localfacts }}"
 
-- name: Set ssl_changed
-  tags: ssl
-  changed_when: false
-  always_run: true
+- name: Set tlscert_changed
+  tags: tlscert
+  changed_when: False
+  always_run: True
   set_fact:
-    ssl_changed: false
+    tlscert_changed: False
 
 - name: Update apt package cache
-  tags: ssl
+  tags: tlscert
   sudo: yes
   when: ansible_os_family == 'Debian'
   apt:
@@ -43,21 +43,21 @@
 
 
 - name: Ensure default directories
-  tags: ssl
+  tags: tlscert
   sudo: yes
   with_items:
-    - dir: "{{ ssl_cnf_path }}"
-      mode: "{{ ssl_cnf_path_mode }}"
-      owner: "{{ ssl_cnf_path_owner }}"
-      group: "{{ ssl_cnf_path_group }}"
-    - dir: "{{ ssl_crt_path }}"
-      mode: "{{ ssl_crt_path_mode  }}"
-      owner: "{{ ssl_crt_path_owner }}"
-      group: "{{ ssl_crt_path_group }}"
-    - dir: "{{ ssl_key_path }}"
-      mode: "{{ ssl_key_path_mode }}"
-      owner: "{{ ssl_key_path_owner }}"
-      group: "{{ ssl_key_path_group }}"
+    - dir: "{{ tlscert_cnf_path }}"
+      mode: "{{ tlscert_cnf_path_mode }}"
+      owner: "{{ tlscert_cnf_path_owner }}"
+      group: "{{ tlscert_cnf_path_group }}"
+    - dir: "{{ tlscert_crt_path }}"
+      mode: "{{ tlscert_crt_path_mode  }}"
+      owner: "{{ tlscert_crt_path_owner }}"
+      group: "{{ tlscert_crt_path_group }}"
+    - dir: "{{ tlscert_key_path }}"
+      mode: "{{ tlscert_key_path_mode }}"
+      owner: "{{ tlscert_key_path_owner }}"
+      group: "{{ tlscert_key_path_group }}"
   file:
     state=directory
     dest={{ item.dir }}
@@ -66,62 +66,62 @@
     group={{ item.group }}
 
 - name: Install required packages
-  tags: ssl
+  tags: tlscert
   sudo: yes
-  with_items: ssl_package_list
+  with_items: tlscert_package_list
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
 
 - name: Install SSL certificates
-  tags: ssl
+  tags: tlscert
   sudo: yes
-  notify: Set ssl_changed true
-  with_items: ssl_install
+  notify: Set tlscert_changed true
+  with_items: tlscert_install
   copy:
-    src={{ ssl_install_sourcedirectory }}/{{ item.name|default(item) }}.crt
-    dest={{ ssl_crt_path }}/{{ item.name|default(item) }}.crt
+    src={{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt
+    dest={{ tlscert_crt_path }}/{{ item.name|default(item) }}.crt
     owner=0
     group=0
     mode=0644
 
 - name: Install SSL certificate keys
-  tags: ssl
+  tags: tlscert
   sudo: yes
-  notify: Set ssl_changed true
-  with_items: ssl_install
+  notify: Set tlscert_changed true
+  with_items: tlscert_install
   copy:
-    src={{ ssl_install_sourcedirectory }}/{{ item.name|default(item) }}.key
-    dest={{ ssl_key_path }}/{{ item.name|default(item) }}.key
+    src={{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key
+    dest={{ tlscert_key_path }}/{{ item.name|default(item) }}.key
     owner=0
     group=0
     mode=0600
 
 - name: Create openssl.cnf for certificates
-  tags: ssl
+  tags: tlscert
   sudo: yes
-  no_log: true
-  with_items: ssl_localfact_create
+  no_log: True
+  with_items: tlscert_localfact_create
   template:
     src=openssl.cnf.j2
-    dest={{ ssl_cnf_path }}/{{ item.CN }}-openssl.cnf
+    dest={{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
 
 - name: Create self-signed SSL certificates
-  tags: ssl
+  tags: tlscert
   sudo: yes
-  notify: Set ssl_changed true
-  with_items: ssl_localfact_create
+  notify: Set tlscert_changed true
+  with_items: tlscert_localfact_create
   command:
     openssl req
-      -newkey "rsa:{{ item.bits|default(ssl_openssl_default_bits) }}"
+      -newkey "rsa:{{ item.bits|default(tlscert_openssl_default_bits) }}"
       -nodes
       -x509
-      -days {{ item.days|default(ssl_openssl_default_days) }}
-      -keyout {{ item.key|default(ssl_key_path + "/" + item.CN + ".pem") }}
-      -out {{ item.crt|default(ssl_crt_path + "/" + item.CN + ".crt") }}
-      -config {{ ssl_cnf_path }}/{{ item.CN }}-openssl.cnf
-    creates={{ ssl_crt_path }}/{{ item.CN }}.crt
+      -days {{ item.days|default(tlscert_openssl_default_days) }}
+      -keyout {{ item.key|default(tlscert_key_path + "/" + item.CN + ".pem") }}
+      -out {{ item.crt|default(tlscert_crt_path + "/" + item.CN + ".crt") }}
+      -config {{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
+    creates={{ tlscert_crt_path }}/{{ item.CN }}.crt
 
-- name: Install ssl facts
-  tags: ssl
+- name: Install tlscert facts
+  tags: tlscert
   sudo: yes
   template:
     src=facts.j2
@@ -131,6 +131,6 @@
     mode='0755'
 
 - name: Re-read facts
-  tags: ssl
+  tags: tlscert
   setup:
     filter=ansible_local

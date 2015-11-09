@@ -29,9 +29,9 @@ if [[ $(id -u) != 0 ]]; then
         exit 0
 fi
 
-CONFPATH=${1:-'{{ ssl_cnf_path }}'}
-CERTPATH=${2:-'{{ ssl_crt_path }}'}
-KEYPATH=${3:-'{{ ssl_key_path }}'}
+CONFPATH=${1:-'{{ tlscert_cnf_path }}'}
+CERTPATH=${2:-'{{ tlscert_crt_path }}'}
+KEYPATH=${3:-'{{ tlscert_key_path }}'}
 
 # Get all valid PEM certificates
 CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate$" |grep -v 'ca-certificates.crt' |cut -d: -f1)

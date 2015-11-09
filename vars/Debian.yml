@@ -1,7 +1,7 @@
 ---
-ssl_package_list:
+tlscert_package_list:
   - openssl
 
-ssl_cnf_path_default: /etc/ssl/cnf
-ssl_crt_path_default: /etc/ssl/certs
-ssl_key_path_default: /etc/ssl/private
+tlscert_cnf_path_default: /etc/ssl/cnf
+tlscert_crt_path_default: /etc/ssl/certs
+tlscert_key_path_default: /etc/ssl/private

@@ -1,8 +1,5 @@
 Gemfile.lock
 .vagrant/
 
-#Role specific
-vars/ssl_localfacts.yml
-
 envvars-vagrant
 \.*\.swp
