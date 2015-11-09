@@ -26,6 +26,12 @@
   always_run: true
   include_vars: "{{ ssl_localfacts }}"
 
+- name: Set ssl_changed
+  tags: ssl
+  changed_when: false
+  always_run: true
+  set_fact:
+    ssl_changed: false
 
 - name: Update apt package cache
   tags: ssl
@@ -68,6 +74,7 @@
 - name: Install SSL certificates
   tags: ssl
   sudo: yes
+  notify: Set ssl_changed true
   with_items: ssl_install
   copy:
     src={{ ssl_install_sourcedirectory }}/{{ item.name|default(item) }}.crt
@@ -79,6 +86,7 @@
 - name: Install SSL certificate keys
   tags: ssl
   sudo: yes
+  notify: Set ssl_changed true
   with_items: ssl_install
   copy:
     src={{ ssl_install_sourcedirectory }}/{{ item.name|default(item) }}.key
@@ -99,6 +107,7 @@
 - name: Create self-signed SSL certificates
   tags: ssl
   sudo: yes
+  notify: Set ssl_changed true
   with_items: ssl_localfact_create
   command:
     openssl req

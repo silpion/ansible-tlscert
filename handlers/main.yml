@@ -1,0 +1,6 @@
+---
+- name: Set ssl_changed true
+  tags: ssl
+  always_run: true
+  set_fact:
+    ssl_changed: true

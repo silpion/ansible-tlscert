@@ -13,7 +13,12 @@
     - role: ansible-ssl
       ssl_certificates_create: []
     - role: ansible-ssl
+
+- hosts: all
   tasks:
     - name: Display ansible_local.tls_certificates
       tags: tls_certificates
       debug: msg="{{ ansible_local.tls_certificates }}"
+    - name: Display ssl_changed
+      tags: tls_certificates
+      debug: var=ssl_changed
