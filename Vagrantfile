@@ -5,33 +5,33 @@
 VAGRANT_API_VERSION = '2'
 Vagrant.configure(VAGRANT_API_VERSION) do |config|
 
-  if ENV['ANSIBLE_SSL_VAGRANT_BOXNAME']
-    config.vm.box = ENV['ANSIBLE_SSL_VAGRANT_BOXNAME']
+  if ENV['ANSIBLE_TLSCERT_VAGRANT_BOXNAME']
+    config.vm.box = ENV['ANSIBLE_TLSCERT_VAGRANT_BOXNAME']
   else
     config.vm.box = 'ubuntu/trusty64'
   end
 
-  config.vm.define :ansiblessltest do |d|
+  config.vm.define :ansibletlscerttest do |d|
 
-    d.vm.hostname = 'ansiblessltest'
+    d.vm.hostname = 'ansibletlscerttest'
     d.vm.synced_folder '.', '/vagrant', id: 'vagrant-root', disabled: true
 
     d.vm.provision :ansible do |ansible|
       ansible.playbook = 'tests/playbook.yml'
-      ansible.tags = ENV['ANSIBLE_SSL_VAGRANT_ANSIBLE_TAGS']
-      ansible.skip_tags = ENV['ANSIBLE_SSL_VAGRANT_ANSIBLE_SKIP_TAGS']
-      ansible.verbose = ENV['ANSIBLE_SSL_VAGRANT_ANSIBLE_VERBOSE']
-      if ENV['ANSIBLE_SSL_VAGRANT_ANSIBLE_CHECKMODE'] == '1'
+      ansible.tags = ENV['ANSIBLE_TLSCERT_VAGRANT_ANSIBLE_TAGS']
+      ansible.skip_tags = ENV['ANSIBLE_TLSCERT_VAGRANT_ANSIBLE_SKIP_TAGS']
+      ansible.verbose = ENV['ANSIBLE_TLSCERT_VAGRANT_ANSIBLE_VERBOSE']
+      if ENV['ANSIBLE_TLSCERT_VAGRANT_ANSIBLE_CHECKMODE'] == '1'
         ansible.raw_arguments = '--check'
       end
       ansible.groups = {
-        'vagrant' => ['ansiblessltest']
+        'vagrant' => ['ansibletlscerttest']
       }
       ansible.limit = 'vagrant'
       ansible.raw_arguments = [
         '--diff'
       ]
-      if ENV['ANSIBLE_SSL_VAGRANT_ANSIBLE_CHECKMODE'] == '1'
+      if ENV['ANSIBLE_TLSCERT_VAGRANT_ANSIBLE_CHECKMODE'] == '1'
         ansible.raw_arguments << '--check'
       end
 
@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANT_API_VERSION) do |config|
 
     d.vm.provider :virtualbox do |v|
       v.customize 'pre-boot', ['modifyvm', :id, '--nictype1', 'virtio']
-      v.customize [ 'modifyvm', :id, '--name', 'ansiblessltest', '--memory', '512', '--cpus', '1' ]
+      v.customize [ 'modifyvm', :id, '--name', 'ansibletlscerttest', '--memory', '512', '--cpus', '1' ]
     end
 
     d.vm.provider :libvirt do |lv|
