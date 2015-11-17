@@ -10,7 +10,7 @@
   tags: tlscert
   include_vars: "{{ ansible_os_family }}.yml"
 
-- name: Template roleinternal vars file
+- name: Template role-internal vars file
   tags: tlscert
   changed_when: False
   always_run: True
