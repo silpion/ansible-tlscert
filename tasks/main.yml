@@ -12,39 +12,39 @@
 
 - name: Template role-internal vars file
   tags: tlscert
-  changed_when: False
-  always_run: True
+  changed_when: false
+  always_run: true
   local_action: template
   args:
     src: roleinternal_facts.j2
     dest: "{{ tlscert_localfacts }}"
-    mode: "0640"
+    mode: '0640'
 
 - name: Include roleinternal vars file
   tags: tlscert
-  changed_when: False
-  always_run: True
+  changed_when: false
+  always_run: true
   include_vars: "{{ tlscert_localfacts }}"
 
 - name: Set tlscert_changed
   tags: tlscert
-  changed_when: False
-  always_run: True
+  changed_when: false
+  always_run: true
   set_fact:
-    tlscert_changed: False
+    tlscert_changed: false
 
 - name: Update apt package cache
   tags: tlscert
-  sudo: yes
+  become: true
   when: ansible_os_family == 'Debian'
   apt:
-    update_cache=yes
-    cache_valid_time=3600
+    update_cache: true
+    cache_valid_time: 3600
 
 
 - name: Ensure default directories
   tags: tlscert
-  sudo: yes
+  become: true
   with_items:
     - dir: "{{ tlscert_cnf_path }}"
       mode: "{{ tlscert_cnf_path_mode }}"
@@ -59,54 +59,57 @@
       owner: "{{ tlscert_key_path_owner }}"
       group: "{{ tlscert_key_path_group }}"
   file:
-    state=directory
-    dest={{ item.dir }}
-    mode={{ item.mode }}
-    owner={{ item.owner }}
-    group={{ item.group }}
+    state: directory
+    dest: "{{ item.dir }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
 
 - name: Install required packages
   tags: tlscert
-  sudo: yes
+  become: true
   with_items: tlscert_package_list
-  action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
+  action: "{{ ansible_pkg_mgr }}"
+  args:
+    state: installed
+    name: "{{ item }}"
 
 - name: Install SSL certificates
   tags: tlscert
-  sudo: yes
+  become: true
   notify: Set tlscert_changed true
   with_items: tlscert_install
   copy:
-    src={{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt
-    dest={{ tlscert_crt_path }}/{{ item.name|default(item) }}.crt
-    owner=0
-    group=0
-    mode=0644
+    src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt"
+    dest: "{{ tlscert_crt_path }}/{{ item.name|default(item) }}.crt"
+    owner: 0
+    group: 0
+    mode: '0644'
 
 - name: Install SSL certificate keys
   tags: tlscert
-  sudo: yes
+  become: true
   notify: Set tlscert_changed true
   with_items: tlscert_install
   copy:
-    src={{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key
-    dest={{ tlscert_key_path }}/{{ item.name|default(item) }}.key
-    owner=0
-    group=0
-    mode=0600
+    src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key"
+    dest: "{{ tlscert_key_path }}/{{ item.name|default(item) }}.key"
+    owner: 0
+    group: 0
+    mode: '0600'
 
 - name: Create openssl.cnf for certificates
   tags: tlscert
-  sudo: yes
-  no_log: True
+  become: true
+  no_log: true
   with_items: tlscert_localfact_create
   template:
-    src=openssl.cnf.j2
-    dest={{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
+    src: openssl.cnf.j2
+    dest: "{{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf"
 
 - name: Create self-signed SSL certificates
   tags: tlscert
-  sudo: yes
+  become: true
   notify: Set tlscert_changed true
   with_items: tlscert_localfact_create
   command:
@@ -122,17 +125,17 @@
 
 - name: Install tlscert facts
   tags: tlscert
-  sudo: yes
+  become: true
   register: tlscert_registered_install_facts
   template:
-    src=facts.j2
-    dest=/etc/ansible/facts.d/tls_certificates.fact
-    owner=0
-    group=0
-    mode='0755'
+    src: facts.j2
+    dest: /etc/ansible/facts.d/tls_certificates.fact
+    owner: 0
+    group: 0
+    mode: '0755'
 
 - name: Re-read facts
   tags: tlscert
   when: tlscert_registered_install_facts|changed
   setup:
-    filter=ansible_local
+    filter: ansible_local

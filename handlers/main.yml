@@ -1,6 +1,6 @@
 ---
 - name: Set tlscert_changed true
   tags: tlscert
-  always_run: True
+  always_run: true
   set_fact:
-    tlscert_changed: True
+    tlscert_changed: true
