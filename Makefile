@@ -6,6 +6,9 @@ IDEMPOTENCEAPPENDIX = tee $(LOGFILE) | (grep 'changed=0.*failed=0' && rm $(LOGFI
 default:
 	exit 0
 
+syntax:
+	ansible-playbook --inventory-file tests/hosts --syntax-check tests/playbook.yml
+
 clean:
 	- $(SOURCECOMMAND) && vagrant destroy -f #This error prone is
 	- rm $(LOGFILE)
@@ -21,5 +24,5 @@ checkmode: idempotence
 	# Currently this can not be implemented because ansible-util always generates a changed event for task 'Install Epel' in checkmode
 	$(SOURCECOMMAND) && ANSIBLE_SSL_VAGRANT_ANSIBLE_CHECKMODE=1 vagrant provision
 
-test: checkmode
+test: syntax checkmode
 	make clean
