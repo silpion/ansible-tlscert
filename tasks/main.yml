@@ -123,6 +123,7 @@
 - name: Install tlscert facts
   tags: tlscert
   sudo: yes
+  register: tlscert_registered_install_facts
   template:
     src=facts.j2
     dest=/etc/ansible/facts.d/tls_certificates.fact
@@ -132,5 +133,6 @@
 
 - name: Re-read facts
   tags: tlscert
+  when: tlscert_registered_install_facts|changed
   setup:
     filter=ansible_local
