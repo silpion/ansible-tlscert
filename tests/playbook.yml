@@ -1,12 +1,24 @@
 ---
 - hosts: all
   vars:
-    - ssl_certificates_create:
-      - name: foo.example.com
-        CN: foo.example.com
-      - name: bar.example.com
+    tlscert_create:
+      - foo.example.com
+      - CN: bar.example.com
         C: US
         ST: Michigan
+    tlscert_install:
+      - example.com
+      - name: example.com
   roles:
-    - { role: ansible-ssl-certificates, ssl_certificates_create: [] }
-    - { role: ansible-ssl-certificates }
+    - role: ansible-tlscert
+      tlscert_certificates_create: []
+    - role: ansible-tlscert
+
+- hosts: all
+  tasks:
+    - name: Display ansible_local.tls_certificates
+      tags: tls_certificates
+      debug: msg="{{ ansible_local.tls_certificates }}"
+    - name: Display tlscert_changed
+      tags: tls_certificates
+      debug: var=tlscert_changed

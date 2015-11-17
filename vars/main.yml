@@ -1,4 +1,6 @@
 ---
-ssl_certificates_supported_platforms:
+tlscert_supported_platforms:
   - Debian
   - RedHat
+
+tlscert_localfacts: '/tmp/tlscert_localfacts.yml'
