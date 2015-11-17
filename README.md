@@ -1,78 +1,78 @@
-# ssl-certificates
+# ansible-tlscert
 
 Create self-signed or install existing SSL certificates.
 
+## Description
+
+This roles purpose is to manage SSL/TLS certificates. To do so, it provides
+three main functionalities:
+
+* Generate self-signed certificates
+* Copy over existing certificates
+* Save information about available certificates for other roles
+
 ## Requirements
 
-When configuring any owner or group for any of ``cnf``, ``crt`` or ``key`` path variables
-it is required to have these user/group accounts available on the managed node. Otherwise
-this role will fail the play.
+None
 
 ## Role Variables
 
-* ``ssl_certificates_create``: Array of SSL certificates to create (array, default: ``[]``)
-* ``ssl_certificates_install``: Array of existing SSL certificates to install (array, default: ``[]``)
+### tlscert_install
 
-* ``ssl_certificates_cnf_path``: Directory name where to store OpenSSL configuration files (string, default: see ``vars/{{ ansible_os_family }}.yml``)
-* ``ssl_certificates_crt_path``: Directory name where to store SSL certificates (string, default: see ``vars/{{ ansible_os_family }}.yml``)
-* ``ssl_certificates_key_path``: Directory name where to store SSL private keys (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+A list of certificates to copy over to the managed node. This requires
+a ``{{ name }}.crt`` and a ``{{ name }}.key`` file to be available at
+``{{ tlscert_install_sourcedirectory|default('files') }}/`` directory.
 
-* ``ssl_certificates_cnf_path_owner``: Owner name or UID for OpenSSL configuration files directory (string, default: ``0``)
-* ``ssl_certificates_cnf_path_group``: Group name of GID for OpenSSL configuration files directory (string, default: ``0``)
-* ``ssl_certificates_cnf_path_mode``: Mode for OpenSSL configuration files directory (string, default: ``700``)
+      tlscert_install:
+        - foo.domain.tld
 
-* ``ssl_certificates_crt_path_owner``: Owner name or UID for OpenSSL certificates directory (string, default: ``0``)
-* ``ssl_certificates_crt_path_group``: Group name or GID for OpenSSL certificates directory (string, default: ``0``)
-* ``ssl_certificates_crt_path_mode``: Mode for OpenSSL certificates directory (string, default: ``755``)
+### tlscert_create
 
-* ``ssl_certificates_key_path_owner``: Owner name or UID for OpenSSL private key directory (string, default: ``0``)
-* ``ssl_certificates_key_path_group``: Group name or GID for OpenSSL private key directory (string, default: ``0``)
-* ``ssl_certificates_key_path_mode``: Mode for OpenSSL private key directory (string, default: ``700``)
+A list of self-signed certificates to generate.
 
 
-### Global SSL certificate generation defaults
+    tlscert_create:
+      - my.tld.com                # Short form, allows to configure domain only
+      - CN: test-cert.org         # Required: Common name the certificate is valid for
+        C: US                     # Optional: Country
+        ST: Michigan              # Optional: State
+        OU: Fire_department       # Optional: Organizational unit
+        days: 365                 # Optional: Days the cert is valid
+        bits: 2048                # Optional: Bits to use for the cert
+        email: foo@bar.org        # Optional: Mailaddress of the site admin
 
-* ``ssl_certificates_openssl_default_days``: Feeds -days argument to openssl req command (default: ``3650``)
-* ``ssl_certificates_openssl_default_bits``: Feeds -newkey rsa:BITS argument to openssl req command (default: ``1024``)
-* ``ssl_certificates_openssl_default_C``: OpenSSL countryName (default: ``DE``)
-* ``ssl_certificates_openssl_default_ST``: OpenSSL stateOrProvince (default: ``Hamburg``)
-* ``ssl_certificates_openssl_default_L``: OpenSSL localityName (default: ``Hamburg``)
-* ``ssl_certificates_openssl_default_O``: OpenSSL 0.organizationalUnitName (default: ``Silpion IT Solutions``)
-* ``ssl_certificates_openssl_default_OU``: OpenSSL organizationalUnitName (default: ``Development SSL``)
-* ``ssl_certificates_openssl_default_P``: Password for the SSL certificate creation (default: ``SILPION!``)
-* ``ssl_certificates_openssl_default_email``: Email for the SSL certificate creation (default: ``webmaster@{{ ansible_fqdn }}``)
 
-### ssl_certificates_create
+#### Global SSL certificate generation defaults
 
-Any global variable can be overridden for each certificate from
-``ssl_certificates_create`` array, e.g:
+* ``tlscert_openssl_default_days``: Feeds -days argument to openssl req command (default: ``3650``)
+* ``tlscert_openssl_default_bits``: Feeds -newkey rsa:BITS argument to openssl req command (default: ``1024``)
+* ``tlscert_openssl_default_C``: OpenSSL countryName (default: ``DE``)
+* ``tlscert_openssl_default_ST``: OpenSSL stateOrProvince (default: ``Hamburg``)
+* ``tlscert_openssl_default_L``: OpenSSL localityName (default: ``Hamburg``)
+* ``tlscert_openssl_default_O``: OpenSSL 0.organizationalUnitName (default: ``Silpion IT Solutions``)
+* ``tlscert_openssl_default_OU``: OpenSSL organizationalUnitName (default: ``Development SSL``)
+* ``tlscert_openssl_default_P``: Password for the SSL certificate creation (default: ``SILPION!``)
+* ``tlscert_openssl_default_email``: Email for the SSL certificate creation (default: ``webmaster@{{ ansible_fqdn }}``)
 
-    vars:
-      - ssl_certificates_create:
-        - name: test-cert
-          days: 365
-          bits: 2048
-          email: foo@bar.org
-        - name: another-test-cert
-          C: US
-          ST: Michigan
-          .
-          .
-          .
+### Global role defaults
 
-Variables not provided in a ``name`` dictionary within ``ssl_certificates_create``
-array default to the global defaults.
+* ``tlscert_cnf_path``: Directory name where to store OpenSSL configuration files (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``tlscert_crt_path``: Directory name where to store SSL certificates (string, default: see ``vars/{{ ansible_os_family }}.yml``)
+* ``tlscert_key_path``: Directory name where to store SSL private keys (string, default: see ``vars/{{ ansible_os_family }}.yml``)
 
-### ssl_certificates_install
+* ``tlscert_cnf_path_owner``: Owner name or UID for OpenSSL configuration files directory (string, default: ``0``)
+* ``tlscert_cnf_path_group``: Group name of GID for OpenSSL configuration files directory (string, default: ``0``)
+* ``tlscert_cnf_path_mode``: Mode for OpenSSL configuration files directory (string, default: ``700``)
 
-The role will copy existing certificate/key pairs to a managed node
-if ``ssl_certificates_install`` variable is set.
+* ``tlscert_crt_path_owner``: Owner name or UID for OpenSSL certificates directory (string, default: ``0``)
+* ``tlscert_crt_path_group``: Group name or GID for OpenSSL certificates directory (string, default: ``0``)
+* ``tlscert_crt_path_mode``: Mode for OpenSSL certificates directory (string, default: ``755``)
 
-    vars:
-      - ssl_certificates_install:
-        - name: foo.domain.tld
+* ``tlscert_key_path_owner``: Owner name or UID for OpenSSL private key directory (string, default: ``0``)
+* ``tlscert_key_path_group``: Group name or GID for OpenSSL private key directory (string, default: ``0``)
+* ``tlscert_key_path_mode``: Mode for OpenSSL private key directory (string, default: ``700``)
 
-This requires two files .crt and .key to be available at files/ directory.
+* ``tlscert_install_sourcedirectory``: Basedir to look into for tlscert\_install certs (string, default: ``files``)
 
 ## Dependencies
 
@@ -88,6 +88,23 @@ Be sure to install required roles with
 
 * [groover.util](https://github.com/silpion/ansible-util)
 
+## Facts
+
+This role provides various facts. First off, it deploys a script that tries to find all available certificates.
+These facts can be used by other roles to automatically find the right certificate and key:
+
+```yml
+dommainname: 'example.com'
+ansible_local.tls_certificates.certs.{{ domainname }}.crt
+ansible_local.tls_certificates.certs.{{ domainname }}.key
+
+```
+
+Also, there is a fact named ``tlscert_changed`` which gets set to ``true`` if changes happen to the deployed certificates.
+This is usefull to e.G. handle reloads after a new certificate was deployed for a specific domain.
+**Note:** This fact is provided via a handler, this means it can only be accessed in a play that gets executed after the one
+that runs this role!
+
 ## Example playbook
 
 **NOTE** Be advised to NOT add configuration variables to the playbook.
@@ -95,17 +112,17 @@ This is just an example which variables to configure in your inventory!
 
     - hosts: lbs
       vars:
-        - ssl_certificates_create:
-          - name: www.example.com
+        - tlscert_create:
+          - www.example.com
       roles:
-        - { role: ssl-certificates }
+        - role: ansible-tlscert
 
 <!-- -->
 
     - hosts: lbs
       vars:
-        - ssl_certificates_install:
-          - name: www.example.com
+        - tlscert_install:
+          - www.example.com
 
 ## License
 
@@ -138,8 +155,9 @@ Ruby with rake and bundler available.
 
 ## Author information
 
-Anja Siek @anja.siek silpion.de
-Mark Kusch @mark.kusch silpion.de
+* Anja Siek @anja.siek silpion.de
+* Mark Kusch @mark.kusch silpion.de
+* Alvaro Aleman @aleman silpion.de
 
 
 <!-- vim: set nofen ts=4 sw=4 et: -->

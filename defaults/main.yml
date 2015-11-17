@@ -1,12 +1,13 @@
 ---
-ssl_certificates_create: []
-ssl_certificates_install: []
+tlscert_create: []
+tlscert_install: []
+tlscert_localfact_create: []
 
 # Configure where certificates/keys are stored
 #
-#ssl_certificates_cnf_path: ""
-#ssl_certificates_crt_path: ""
-#ssl_certificates_key_path: ""
+#tlscert_cnf_path: ""
+#tlscert_crt_path: ""
+#tlscert_key_path: ""
 #
 #   Default values for those variables are configured
 #     in an OS specific way in vars/{{ ansible_os_family }}.yml
@@ -23,25 +24,26 @@ ssl_certificates_install: []
 # NOTE: When configuring user or groups for filesystem
 #   object ownership ensure to have these available on
 #   the managed node. Otherwise the role will fail the play.
-ssl_certificates_cnf_path_owner: 0
-ssl_certificates_cnf_path_group: 0
-ssl_certificates_cnf_path_mode: 700
+tlscert_cnf_path_owner: 0
+tlscert_cnf_path_group: 0
+tlscert_cnf_path_mode: 700
 
-ssl_certificates_crt_path_owner: 0
-ssl_certificates_crt_path_group: 0
-ssl_certificates_crt_path_mode: 755
+tlscert_crt_path_owner: 0
+tlscert_crt_path_group: 0
+tlscert_crt_path_mode: 755
 
-ssl_certificates_key_path_owner: 0
-ssl_certificates_key_path_group: 0
-ssl_certificates_key_path_mode: 700
+tlscert_key_path_owner: 0
+tlscert_key_path_group: 0
+tlscert_key_path_mode: 700
 
 
-ssl_certificates_openssl_default_days: 3650
-ssl_certificates_openssl_default_bits: 1024                 # default_bits
-ssl_certificates_openssl_default_C: DE                      # countryName_default
-ssl_certificates_openssl_default_ST: Hamburg                # stateOrProvince_default
-ssl_certificates_openssl_default_L: Hamburg                 # localityName_default
-ssl_certificates_openssl_default_O: Silpion_IT_Solutions    # 0.organizationalUnitName_default
-ssl_certificates_openssl_default_OU: 'Development_SSL'      # organizationalUnitName_default
-ssl_certificates_openssl_default_CN: "{{ ansible_fqdn }}"   # commonName_default
-ssl_certificates_openssl_default_P: 'SILPION!'              # challengePassword_default
+tlscert_openssl_default_days: 3650
+tlscert_openssl_default_bits: 1024                 # default_bits
+tlscert_openssl_default_C: DE                      # countryName_default
+tlscert_openssl_default_ST: Hamburg                # stateOrProvince_default
+tlscert_openssl_default_L: Hamburg                 # localityName_default
+tlscert_openssl_default_O: Silpion_IT_Solutions    # 0.organizationalUnitName_default
+tlscert_openssl_default_OU: 'Development_SSL'      # organizationalUnitName_default
+tlscert_openssl_default_P: 'SILPION!'              # challengePassword_default
+
+tlscert_install_sourcedirectory: 'files'

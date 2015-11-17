@@ -4,12 +4,12 @@ RANDFILE = $ENV::HOME/.rnd
 {% if item.bits is defined %}
 default_bits = {{ item.bits }}
 {% else %}
-default_bits = {{ ssl_certificates_openssl_default_bits }}
+default_bits = {{ tlscert_openssl_default_bits }}
 {% endif %}
 {% if item.key is defined %}
 default_keyfile = {{ item.key }}
 {% else %}
-default_keyfile = {{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}/{{ item.name }}.key
+default_keyfile = {{ tlscert_key_path }}/{{ item.CN }}.key
 {% endif %}
 distinguished_name = req_distinguished_name
 attributes = req_attributes
@@ -17,7 +17,7 @@ prompt = no
 {% if item.P is defined %}
 output_password = {{ item.P }}
 {% else %}
-output_password = {{ ssl_certificates_openssl_default_P }}
+output_password = {{ tlscert_openssl_default_P }}
 {% endif %}
 
 
@@ -35,5 +35,5 @@ emailAddress = {{ item.email }}
 {% if item.P is defined %}
 challengePassword = {{ item.P }}
 {% else %}
-challengePassword = {{ ssl_certificates_openssl_default_P }}
+challengePassword = {{ tlscert_openssl_default_P }}
 {% endif %}

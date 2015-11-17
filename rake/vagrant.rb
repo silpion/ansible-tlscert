@@ -4,8 +4,8 @@ require 'rspec/core/rake_task'
 
 desc "Bring up Vagrant VM"
 task :up do
-  if ENV['ANSIBLE_SSLCERTIFICATES_VAGRANT_PROVIDER']
-    sh 'vagrant', 'up', '--no-provision', '--provider', ENV['ANSIBLE_SSLCERTIFICATES_VAGRANT_PROVIDER']
+  if ENV['ANSIBLE_TLSCERT_VAGRANT_PROVIDER']
+    sh 'vagrant', 'up', '--no-provision', '--provider', ENV['ANSIBLE_TLSCERT_VAGRANT_PROVIDER']
   else
     sh %{vagrant up --no-provision}
   end

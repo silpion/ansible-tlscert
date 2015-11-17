@@ -1,153 +1,141 @@
 ---
 - name: Assert platform is supported
-  tags: ssl-certificates
+  tags: tlscert
   assert:
     that:
-      - ansible_os_family in ssl_certificates_supported_platforms
+      - ansible_os_family in tlscert_supported_platforms
+      - ansible_local['util'] is defined
 
 - name: Include OS specific vars
+  tags: tlscert
   include_vars: "{{ ansible_os_family }}.yml"
-  tags: ssl-certificates
 
+- name: Template role-internal vars file
+  tags: tlscert
+  changed_when: false
+  always_run: true
+  local_action: template
+  args:
+    src: roleinternal_facts.j2
+    dest: "{{ tlscert_localfacts }}"
+    mode: '0640'
+
+- name: Include roleinternal vars file
+  tags: tlscert
+  changed_when: false
+  always_run: true
+  include_vars: "{{ tlscert_localfacts }}"
+
+- name: Set tlscert_changed
+  tags: tlscert
+  changed_when: false
+  always_run: true
+  set_fact:
+    tlscert_changed: false
 
 - name: Update apt package cache
-  tags: ssl-certificates
-  sudo: yes
+  tags: tlscert
+  become: true
   when: ansible_os_family == 'Debian'
   apt:
-    update_cache=yes
-    cache_valid_time=3600
+    update_cache: true
+    cache_valid_time: 3600
 
 
 - name: Ensure default directories
-  tags: ssl-certificates
-  sudo: yes
+  tags: tlscert
+  become: true
   with_items:
-    - { dir:
-        "{{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}",
-          mode: "{{ ssl_certificates_cnf_path_mode }}",
-          owner: "{{ ssl_certificates_cnf_path_owner }}",
-          group: "{{ ssl_certificates_cnf_path_group }}"
-      }
-    - { dir:
-        "{{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}",
-          mode: "{{ ssl_certificates_crt_path_mode  }}",
-          owner: "{{ ssl_certificates_crt_path_owner }}",
-          group: "{{ ssl_certificates_crt_path_group }}"
-      }
-    - { dir:
-        "{{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}",
-          mode: "{{ ssl_certificates_key_path_mode }}",
-          owner: "{{ ssl_certificates_key_path_owner }}",
-          group: "{{ ssl_certificates_key_path_group }}"
-      }
+    - dir: "{{ tlscert_cnf_path }}"
+      mode: "{{ tlscert_cnf_path_mode }}"
+      owner: "{{ tlscert_cnf_path_owner }}"
+      group: "{{ tlscert_cnf_path_group }}"
+    - dir: "{{ tlscert_crt_path }}"
+      mode: "{{ tlscert_crt_path_mode  }}"
+      owner: "{{ tlscert_crt_path_owner }}"
+      group: "{{ tlscert_crt_path_group }}"
+    - dir: "{{ tlscert_key_path }}"
+      mode: "{{ tlscert_key_path_mode }}"
+      owner: "{{ tlscert_key_path_owner }}"
+      group: "{{ tlscert_key_path_group }}"
   file:
-    state=directory
-    dest={{ item.dir }}
-    mode={{ item.mode }}
-    owner={{ item.owner }}
-    group={{ item.group }}
-
-
-- name: Install Ansible facts.d directory
-  tags: ssl-certificates
-  sudo: yes
-  file:
-    state=directory
-    owner=0
-    group=0
-    mode=0755
-    dest=/etc/ansible/facts.d
-
-- name: Install ssl-certificates facts
-  tags: ssl-certificates
-  sudo: yes
-  template:
-    src=facts.j2
-    dest=/etc/ansible/facts.d/ssl-certificates.fact
-    owner=0
-    group=0
-    mode=0644
-
-- name: Re-read facts
-  tags: ssl-certificates
-  setup:
-    filter=ansible_local
-
+    state: directory
+    dest: "{{ item.dir }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
 
 - name: Install required packages
-  tags: ssl-certificates
-  sudo: yes
-  with_items: ssl_certificates_package_list
-  action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
-
-- name: Set defaults in ssl_certificates_create
-  tags:
-    - ssl-certificates
-    - ssl-certificates-facts
-  changed_when: False
-  with_items: ssl_certificates_create
-  register: ssl_certificates_localfact_create_result
-  set_fact:
-    name="{{ item.name }}"
-    C="{{ item.C|default(ssl_certificates_openssl_default_C) }}"
-    CN="{{ item.CN|default(ssl_certificates_openssl_default_CN) }}"
-    ST="{{ item.ST|default(ssl_certificates_openssl_default_ST) }}"
-    OU="{{ item.OU|default(ssl_certificates_openssl_default_OU) }}"
-    L="{{ item.L|default(ssl_certificates_openssl_default_L) }}"
-    O="{{ item.O|default(ssl_certificates_openssl_default_O) }}"
-    email="{{ item.email|default(ssl_certificates_openssl_default_email)|default('webmaster@' + item.CN|default(ssl_certificates_openssl_default_CN)) }}"
-
-- name: Format ssl_certificates_create
-  tags:
-    - ssl-certificates
-    - ssl-certificates-facts
-  changed_when: False
-  set_fact: ssl_certificates_localfact_create="{{ ssl_certificates_localfact_create_result.results|map(attribute='ansible_facts')|list }}"
-
-- name: Create openssl.cnf for certificates
-  tags: ssl-certificates
-  sudo: yes
-  no_log: true
-  with_items: ssl_certificates_localfact_create
-  template:
-    src=openssl.cnf.j2
-    dest={{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
-
-- name: Create self-signed SSL certificates
-  tags: ssl-certificates
-  sudo: yes
-  with_items: ssl_certificates_localfact_create
-  command:
-    openssl req
-      -newkey "rsa:{{ item.bits|default(ssl_certificates_openssl_default_bits) }}"
-      -nodes
-      -x509
-      -days {{ item.days|default(ssl_certificates_openssl_default_days) }}
-      -keyout {% if ssl_certificates_key_path is defined %}{{ item.key|default(ssl_certificates_key_path + "/" + item.name + ".pem") }}{% else %}{{ item.key|default(ssl_certificates_key_path_default) + "/" + item.name + ".pem"}}{% endif %}
-      -out {% if ssl_certificates_crt_path is defined %}{{ item.crt|default(ssl_certificates_crt_path + "/" + item.name + ".crt") }}{% else %}{{ item.crt|default(ssl_certificates_crt_path_default) + "/" + item.name + ".crt" }}{% endif %}
-      -config {{ ssl_certificates_cnf_path|default(ssl_certificates_cnf_path_default) }}/{{ item.name }}-openssl.cnf
-    creates={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}/{{ item.name }}.crt
-
+  tags: tlscert
+  become: true
+  with_items: tlscert_package_list
+  action: "{{ ansible_pkg_mgr }}"
+  args:
+    state: installed
+    name: "{{ item }}"
 
 - name: Install SSL certificates
-  tags: ssl-certificates
-  sudo: yes
-  with_items: ssl_certificates_install
+  tags: tlscert
+  become: true
+  notify: Set tlscert_changed true
+  with_items: tlscert_install
   copy:
-    src=files/{{ item.name }}.crt
-    dest={{ ssl_certificates_crt_path|default(ssl_certificates_crt_path_default) }}/{{ item.name }}.crt
-    owner=0
-    group=0
-    mode=0644
+    src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt"
+    dest: "{{ tlscert_crt_path }}/{{ item.name|default(item) }}.crt"
+    owner: 0
+    group: 0
+    mode: '0644'
 
 - name: Install SSL certificate keys
-  tags: ssl-certificates
-  sudo: yes
-  with_items: ssl_certificates_install
+  tags: tlscert
+  become: true
+  notify: Set tlscert_changed true
+  with_items: tlscert_install
   copy:
-    src=files/{{ item.name }}.key
-    dest={{ ssl_certificates_key_path|default(ssl_certificates_key_path_default) }}/{{ item.name }}.pem
-    owner=0
-    group=0
-    mode=0600
+    src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key"
+    dest: "{{ tlscert_key_path }}/{{ item.name|default(item) }}.key"
+    owner: 0
+    group: 0
+    mode: '0600'
+
+- name: Create openssl.cnf for certificates
+  tags: tlscert
+  become: true
+  no_log: true
+  with_items: tlscert_localfact_create
+  template:
+    src: openssl.cnf.j2
+    dest: "{{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf"
+
+- name: Create self-signed SSL certificates
+  tags: tlscert
+  become: true
+  notify: Set tlscert_changed true
+  with_items: tlscert_localfact_create
+  command:
+    openssl req
+      -newkey "rsa:{{ item.bits|default(tlscert_openssl_default_bits) }}"
+      -nodes
+      -x509
+      -days {{ item.days|default(tlscert_openssl_default_days) }}
+      -keyout {{ item.key|default(tlscert_key_path + "/" + item.CN + ".pem") }}
+      -out {{ item.crt|default(tlscert_crt_path + "/" + item.CN + ".crt") }}
+      -config {{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
+    creates={{ tlscert_crt_path }}/{{ item.CN }}.crt
+
+- name: Install tlscert facts
+  tags: tlscert
+  become: true
+  register: tlscert_registered_install_facts
+  template:
+    src: facts.j2
+    dest: /etc/ansible/facts.d/tls_certificates.fact
+    owner: 0
+    group: 0
+    mode: '0755'
+
+- name: Re-read facts
+  tags: tlscert
+  when: tlscert_registered_install_facts|changed
+  setup:
+    filter: ansible_local

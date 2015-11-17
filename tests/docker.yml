@@ -7,7 +7,7 @@
 #   will not work.
 #
 #   If you don't change anything, everything SHOULD work :)
-env_name: ansiblesslcertificatestest
+env_name: ansibletlscerttest
 
 ssh_user: root
 ssh_keys: tests/silpion-insecure-private-key
@@ -15,5 +15,5 @@ ssh_host: localhost
 
 docker_img: silpion/ubuntu-upstart-sshkey
 docker_tag: 1.0.0
-docker_run: "--detach --name ansiblesslcertificatestest --hostname ansiblesslcertificatestest --net=bridge --publish {{ ssh_port }}:22"
+docker_run: "--detach --name ansibletlscerttest --hostname ansibletlscerttest --net=bridge --publish {{ ssh_port }}:22"
 docker_cmd: "/sbin/init"

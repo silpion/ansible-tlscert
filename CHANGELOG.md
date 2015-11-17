@@ -1,3 +1,46 @@
+# 1.0.0
+
+Alvaro Aleman (38):
+
+* fixed errors on empty ssl\_certificates\_create
+* role renamed
+* Refactor variable names to reflect role name
+* Rename facts
+* Rework README
+* Update Vagrant testing
+* Remove create facts.d dicetory task
+* Add ansible-util assertion
+* Refactor default directorys map for readability
+* Fix testplaybook
+* Refactor testplaybook for readability
+* Allow defining ssl\_install as String
+* Move ssl\_cert install to beginning
+* Add script for gathering ssl cert info
+* Add execute tasks for gather cert facts script
+* Move ssl\_create to locally templated vars file
+* Fix gather\_cert\_facts script
+* Update README
+* Fix roleinternal\_facts script
+* Fix testcert distribution
+* Make gather\_facts script output JSON
+* Use script for tls\_certificates fact generation
+* Remove obsolete variables
+* Remove cert.name variable
+* Disable host key checking for testing
+* Add short form for ssl\_create
+* Move defaulting of ssl\_{cnf,crt,key}\_path to roleinternal\_facts template
+* Use .key extension for ssl keys
+* Make ssl\_install sourcedircetory configurable
+* Add ssl\_changed var
+* Update README
+* Rename role to ansible-tlscert
+* Avoid unnecessary re-reading of facts
+* Add a makefile for automated testing
+* Fix ortography
+* Consistently use complex args style
+* Fix naming in Vagrant
+* Allow syntax testing without executing role
+
 # 0.6.0
 
 Alvaro Aleman (3):
