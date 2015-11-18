@@ -22,7 +22,7 @@ idempotence: provision
 checkmode: idempotence
 	# This should have '| $(IDEMPOTENCEAPPENDIX)' as suffix
 	# Currently this can not be implemented because ansible-util always generates a changed event for task 'Install Epel' in checkmode
-	$(SOURCECOMMAND) && ANSIBLE_SSL_VAGRANT_ANSIBLE_CHECKMODE=1 vagrant provision
+	$(SOURCECOMMAND) && ANSIBLE_TLSCERT_VAGRANT_ANSIBLE_CHECKMODE=1 vagrant provision
 
 test: syntax checkmode
 	make clean
