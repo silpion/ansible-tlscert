@@ -76,17 +76,8 @@ A list of self-signed certificates to generate.
 
 ## Dependencies
 
-This role depends on ``groover.util`` role. This is configured
-for ``ansible-galaxy install`` in **requirements.yml**.
+None, but the directory ``/etc/ansible/facts.d`` must exist
 
-**NOTE**: Requirements are installed as virtual user ``silpion``
-(``silpion.util``).
-
-Be sure to install required roles with
-
-    ansible-galaxy install --role-file requirements.yml
-
-* [groover.util](https://github.com/silpion/ansible-util)
 
 ## Facts
 
