@@ -95,8 +95,8 @@ These facts can be used by other roles to automatically find the right certifica
 
 ```yml
 dommainname: 'example.com'
-ansible_local.tls_certificates.certs.{{ domainname }}.crt
-ansible_local.tls_certificates.certs.{{ domainname }}.key
+ansible_local.tlscert.certs.{{ domainname }}.crt
+ansible_local.tlscert.certs.{{ domainname }}.key
 
 ```
 

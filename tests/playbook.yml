@@ -11,7 +11,7 @@
       - name: example.com
   pre_tasks:
     - name: Create facts.d folder
-      tags: tls_certificates
+      tags: tlscert
       become: true
       file:
         state: directory
@@ -23,9 +23,9 @@
 
 - hosts: all
   tasks:
-    - name: Display ansible_local.tls_certificates
-      tags: tls_certificates
-      debug: msg="{{ ansible_local.tls_certificates }}"
+    - name: Display ansible_local.tlscert
+      tags: tlscert
+      debug: var=ansible_local.tlscert
     - name: Display tlscert_changed
-      tags: tls_certificates
+      tags: tlscert
       debug: var=tlscert_changed
