@@ -1,3 +1,13 @@
+# 1.1.0
+
+Alvaro Aleman (1):
+
+* Remove hard dependency on ansible-util
+
+Mark Kusch (1):
+
+* Fixup variable name for checkmode make target
+
 # 1.0.0
 
 Alvaro Aleman (38):
