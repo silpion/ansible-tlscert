@@ -62,7 +62,7 @@ for cert in $CERTS; do
         CERTMODULUS=$(openssl x509 -noout -modulus -in $cert)
         KEY=""
         for file in $KEYS; do
-                if [[ $CERTMODULUS == $(openssl rsa -noout -modulus -in $file) ]]; then
+                if [[ $CERTMODULUS == $(openssl rsa -noout -modulus -in $file 2>/dev/null) ]]; then
                         KEY=$file
                         break
                 fi
