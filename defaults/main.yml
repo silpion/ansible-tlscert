@@ -47,3 +47,5 @@ tlscert_openssl_default_OU: 'Development_SSL'      # organizationalUnitName_defa
 tlscert_openssl_default_P: 'SILPION!'              # challengePassword_default
 
 tlscert_install_sourcedirectory: 'files'
+
+util_template_use_cow: true

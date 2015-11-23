@@ -4,7 +4,6 @@
   assert:
     that:
       - ansible_os_family in tlscert_supported_platforms
-      - ansible_local['util'] is defined
 
 - name: Include OS specific vars
   tags: tlscert
