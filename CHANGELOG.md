@@ -1,3 +1,14 @@
+# 1.2.0
+
+Alvaro Aleman (6):
+
+* Make fact naming consistent
+* Recognize certificate keys with different filetypes
+* Redirect error output of key modulus detection
+* Update docs to reflect obsolete dependency on util
+* Use heredoc for factscript
+* Use var instead of msg param for fact debugging
+
 # 1.1.0
 
 Alvaro Aleman (1):
