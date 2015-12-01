@@ -34,19 +34,21 @@ CERTPATH=${2:-'{{ tlscert_crt_path }}'}
 KEYPATH=${3:-'{{ tlscert_key_path }}'}
 
 # Get all valid PEM certificates
-CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate$" |grep -v 'ca-certificates.crt' |cut -d: -f1)
+CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate" |grep -v 'ca-certificates.crt' |cut -d: -f1)
 
 # Get all certificate keys
-KEYS=$(find $KEYPATH |xargs file|grep 'ASCII text'|cut -d: -f1)
+KEYS=$(find $KEYPATH |xargs file|egrep 'PEM RSA private key|PEM DSA private key|PEM EC private key|ASCII text'|cut -d: -f1)
 
 # Print general information
-echo "{"
-echo "  \"general\": {"
-echo "    \"cnf_path\": \"$CONFPATH\","
-echo "    \"crt_path\": \"$CERTPATH\","
-echo "    \"key_path\": \"$KEYPATH\""
-echo "  },"
-echo "  \"certs\": {"
+cat << EOF
+    {
+      "general": {
+        "cnf_path": "$CONFPATH",
+        "crt_path": "$CERTPATH",
+        "key_path": "$KEYPATH"
+      },
+      "certs": {
+EOF
 
 # JSON requires every but the last element of a list to be terminated with a ","
 # Since we can not find out if we are the last element, we prepend every but the first element with a comma
@@ -62,7 +64,7 @@ for cert in $CERTS; do
         CERTMODULUS=$(openssl x509 -noout -modulus -in $cert)
         KEY=""
         for file in $KEYS; do
-                if [[ $CERTMODULUS == $(openssl rsa -noout -modulus -in $file) ]]; then
+                if [[ $CERTMODULUS == $(openssl rsa -noout -modulus -in $file 2>/dev/null) ]]; then
                         KEY=$file
                         break
                 fi
@@ -85,5 +87,7 @@ for cert in $CERTS; do
 
 done
 
-echo "  }"
-echo "}"
+cat << EOF
+  }
+}
+EOF
