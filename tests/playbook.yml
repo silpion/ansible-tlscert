@@ -25,7 +25,7 @@
   tasks:
     - name: Display ansible_local.tls_certificates
       tags: tls_certificates
-      debug: msg="{{ ansible_local.tls_certificates }}"
+      debug: var=ansible_local.tls_certificates
     - name: Display tlscert_changed
       tags: tls_certificates
       debug: var=tlscert_changed
