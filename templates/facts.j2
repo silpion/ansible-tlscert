@@ -40,13 +40,15 @@ CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate" |grep -v 'ca-certific
 KEYS=$(find $KEYPATH |xargs file|egrep 'PEM RSA private key|PEM DSA private key|PEM EC private key|ASCII text'|cut -d: -f1)
 
 # Print general information
-echo "{"
-echo "  \"general\": {"
-echo "    \"cnf_path\": \"$CONFPATH\","
-echo "    \"crt_path\": \"$CERTPATH\","
-echo "    \"key_path\": \"$KEYPATH\""
-echo "  },"
-echo "  \"certs\": {"
+cat << EOF
+    {
+      "general": {
+        "cnf_path": "$CONFPATH",
+        "crt_path": "$CERTPATH",
+        "key_path": "$KEYPATH"
+      },
+      "certs": {
+EOF
 
 # JSON requires every but the last element of a list to be terminated with a ","
 # Since we can not find out if we are the last element, we prepend every but the first element with a comma
@@ -85,5 +87,7 @@ for cert in $CERTS; do
 
 done
 
-echo "  }"
-echo "}"
+cat << EOF
+  }
+}
+EOF
