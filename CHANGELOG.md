@@ -1,5 +1,11 @@
 # 1.2.0
 
+Alvaro Aleman (1):
+
+* Use host-specific name for local vars file
+
+# 1.2.0
+
 Alvaro Aleman (6):
 
 * Make fact naming consistent
