@@ -3,3 +3,5 @@ Gemfile.lock
 
 envvars-vagrant
 \.*\.swp
+vars/temp/*
+!vars/temp/.gitkeep
