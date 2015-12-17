@@ -3,4 +3,4 @@ tlscert_supported_platforms:
   - Debian
   - RedHat
 
-tlscert_localfacts: '/tmp/tlscert_localfacts.yml'
+tlscert_localfacts: '{{ role_path }}/vars/temp/{{ inventory_hostname}}_tlscert_localfacts.yml'
