@@ -117,7 +117,7 @@
       -nodes
       -x509
       -days {{ item.days|default(tlscert_openssl_default_days) }}
-      -keyout {{ item.key|default(tlscert_key_path + "/" + item.CN + ".pem") }}
+      -keyout {{ item.key|default(tlscert_key_path + "/" + item.CN + ".key") }}
       -out {{ item.crt|default(tlscert_crt_path + "/" + item.CN + ".crt") }}
       -config {{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
     creates={{ tlscert_crt_path }}/{{ item.CN }}.crt
