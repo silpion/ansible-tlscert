@@ -7,7 +7,7 @@
 
 - name: Include OS specific vars
   tags: tlscert
-  include_vars: "{{ ansible_os_family }}.yml"
+  include: ../../silpion.lib/tasks/os-specific-vars.yml
 
 - name: Template role-internal vars file
   tags: tlscert
