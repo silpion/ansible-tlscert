@@ -4,7 +4,7 @@ galaxy_info:
   description: Manage SSL certificates
   company: http://silpion.de
   license: Apache 2
-  min_ansible_version: 1.8
+  min_ansible_version: 2.0.0.2
   platforms:
   - name: EL
     versions:
@@ -18,4 +18,5 @@ galaxy_info:
   categories:
   - development
   - system
-dependencies: []
+dependencies:
+  - silpion.lib

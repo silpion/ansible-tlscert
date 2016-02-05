@@ -122,19 +122,9 @@
       -config {{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
     creates={{ tlscert_crt_path }}/{{ item.CN }}.crt
 
-- name: Install tlscert facts
+- name: Include localfact tasks
   tags: tlscert
-  become: true
-  register: tlscert_registered_install_facts
-  template:
-    src: facts.j2
-    dest: /etc/ansible/facts.d/tlscert.fact
-    owner: 0
-    group: 0
-    mode: '0755'
-
-- name: Re-read facts
-  tags: tlscert
-  when: tlscert_registered_install_facts|changed
-  setup:
-    filter: ansible_local
+  include: ../../silpion.lib/tasks/localfacts.yml
+  vars:
+    namespace: tlscert
+    file_mode: '0755'
