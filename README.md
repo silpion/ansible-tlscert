@@ -76,8 +76,9 @@ A list of self-signed certificates to generate.
 
 ## Dependencies
 
-None, but the directory ``/etc/ansible/facts.d`` must exist
+* [silpion.lib](https://github.com/silpion/ansible-lib)
 
+**Note:** Ensure silpion.lib is installed as ``silpion.lib``. There are hardcoded references to this name.
 
 ## Facts
 
