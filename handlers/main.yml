@@ -4,3 +4,8 @@
   always_run: true
   set_fact:
     tlscert_changed: true
+
+- name: Re-read tlscert facts
+  setup:
+    filter: ansible_local['tlscert']
+    fact_path: "{{ util_local_facts_directory|default('/etc/ansible/facts.d') }}"
