@@ -76,7 +76,9 @@
 - name: Install SSL certificates
   tags: tlscert
   become: true
-  notify: Set tlscert_changed true
+  notify:
+    - Set tlscert_changed true
+    - Re-read tlscert facts
   with_items: tlscert_install
   copy:
     src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt"
@@ -88,7 +90,9 @@
 - name: Install SSL certificate keys
   tags: tlscert
   become: true
-  notify: Set tlscert_changed true
+  notify:
+    - Set tlscert_changed true
+    - Re-read tlscert facts
   with_items: tlscert_install
   copy:
     src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key"
@@ -109,7 +113,9 @@
 - name: Create self-signed SSL certificates
   tags: tlscert
   become: true
-  notify: Set tlscert_changed true
+  notify:
+    - Set tlscert_changed true
+    - Re-read tlscert facts
   with_items: tlscert_localfact_create
   command:
     openssl req
