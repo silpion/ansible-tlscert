@@ -7,5 +7,5 @@
 
 - name: Re-read tlscert facts
   setup:
-    filter: ansible_local['tlscert']
+    filter: ansible_local
     fact_path: "{{ util_local_facts_directory|default('/etc/ansible/facts.d') }}"
