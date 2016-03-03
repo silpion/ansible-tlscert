@@ -2,6 +2,38 @@
 
 Create self-signed or install existing SSL certificates.
 
+# Synopsis
+
+```yml
+- name: Generate a certificate for mydomain.com
+  hosts: all
+  vars:
+    tlscert_create:
+      - mydomain.com
+  roles:
+    - ansible-tlscert
+
+```
+
+```yml
+- name: Copy over my certificate to its default location and tell me where that is
+  hosts: all
+  vars:
+    tlscert_install_sourcedirectory: /home/root/downloads
+    # A cert named example.com.crt and a corresponding key named example.com.key must be available in /home/root/downloads
+    tlscert_install:
+      - example.com
+  roles:
+    - ansible-tlscert
+  tasks:
+    - name: Show example.com certificate and key path
+      with_items:
+        - "{{ ansible_local['tlscert']['certs']['example.com']['crt'] }}"
+        - "{{ ansible_local['tlscert']['certs']['example.com']['key'] }}"
+      debug:
+        msg: "{{ item }}"
+```
+
 ## Description
 
 This roles purpose is to manage SSL/TLS certificates. To do so, it provides
