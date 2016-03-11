@@ -67,7 +67,7 @@
 - name: Install required packages
   tags: tlscert
   become: true
-  with_items: tlscert_package_list
+  with_items: "{{ tlscert_package_list }}"
   action: "{{ ansible_pkg_mgr }}"
   args:
     state: installed
@@ -79,7 +79,7 @@
   notify:
     - Set tlscert_changed true
     - Re-read tlscert facts
-  with_items: tlscert_install
+  with_items: "{{ tlscert_install }}"
   copy:
     src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt"
     dest: "{{ tlscert_crt_path }}/{{ item.name|default(item) }}.crt"
@@ -93,7 +93,7 @@
   notify:
     - Set tlscert_changed true
     - Re-read tlscert facts
-  with_items: tlscert_install
+  with_items: "{{ tlscert_install }}"
   copy:
     src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key"
     dest: "{{ tlscert_key_path }}/{{ item.name|default(item) }}.key"
@@ -105,7 +105,7 @@
   tags: tlscert
   become: true
   no_log: true
-  with_items: tlscert_localfact_create
+  with_items: "{{ tlscert_localfact_create }}"
   template:
     src: openssl.cnf.j2
     dest: "{{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf"
@@ -116,7 +116,7 @@
   notify:
     - Set tlscert_changed true
     - Re-read tlscert facts
-  with_items: tlscert_localfact_create
+  with_items: "{{ tlscert_localfact_create }}"
   command:
     openssl req
       -newkey "rsa:{{ item.bits|default(tlscert_openssl_default_bits) }}"
