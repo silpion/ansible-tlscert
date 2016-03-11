@@ -1,3 +1,19 @@
+# 2.0.0
+Alvaro Aleman (8):
+
+* Use .key as file suffix for generated keys
+* Use lib.localfacts
+* Use lib.os-specific-vars
+* Add silpion.lib to requirements
+* Add note about silpion.lib dependency to README
+* Re-read tlscerts facts when certificate changes occured
+* Dont use subkey in filter args for setup module
+* Add simple usage examples
+
+Anja Siek (1):
+
+* fix deprication warnings
+
 # 1.2.0
 
 Alvaro Aleman (1):
