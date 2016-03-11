@@ -9,13 +9,6 @@
     tlscert_install:
       - example.com
       - name: example.com
-  pre_tasks:
-    - name: Create facts.d folder
-      tags: tlscert
-      become: true
-      file:
-        state: directory
-        path: '/etc/ansible/facts.d'
   roles:
     - role: ansible-tlscert
       tlscert_certificates_create: []

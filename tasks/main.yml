@@ -7,7 +7,7 @@
 
 - name: Include OS specific vars
   tags: tlscert
-  include_vars: "{{ ansible_os_family }}.yml"
+  include: ../../silpion.lib/tasks/os-specific-vars.yml
 
 - name: Template role-internal vars file
   tags: tlscert
@@ -67,7 +67,7 @@
 - name: Install required packages
   tags: tlscert
   become: true
-  with_items: tlscert_package_list
+  with_items: "{{ tlscert_package_list }}"
   action: "{{ ansible_pkg_mgr }}"
   args:
     state: installed
@@ -76,8 +76,10 @@
 - name: Install SSL certificates
   tags: tlscert
   become: true
-  notify: Set tlscert_changed true
-  with_items: tlscert_install
+  notify:
+    - Set tlscert_changed true
+    - Re-read tlscert facts
+  with_items: "{{ tlscert_install }}"
   copy:
     src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.crt"
     dest: "{{ tlscert_crt_path }}/{{ item.name|default(item) }}.crt"
@@ -88,8 +90,10 @@
 - name: Install SSL certificate keys
   tags: tlscert
   become: true
-  notify: Set tlscert_changed true
-  with_items: tlscert_install
+  notify:
+    - Set tlscert_changed true
+    - Re-read tlscert facts
+  with_items: "{{ tlscert_install }}"
   copy:
     src: "{{ tlscert_install_sourcedirectory }}/{{ item.name|default(item) }}.key"
     dest: "{{ tlscert_key_path }}/{{ item.name|default(item) }}.key"
@@ -101,7 +105,7 @@
   tags: tlscert
   become: true
   no_log: true
-  with_items: tlscert_localfact_create
+  with_items: "{{ tlscert_localfact_create }}"
   template:
     src: openssl.cnf.j2
     dest: "{{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf"
@@ -109,32 +113,24 @@
 - name: Create self-signed SSL certificates
   tags: tlscert
   become: true
-  notify: Set tlscert_changed true
-  with_items: tlscert_localfact_create
+  notify:
+    - Set tlscert_changed true
+    - Re-read tlscert facts
+  with_items: "{{ tlscert_localfact_create }}"
   command:
     openssl req
       -newkey "rsa:{{ item.bits|default(tlscert_openssl_default_bits) }}"
       -nodes
       -x509
       -days {{ item.days|default(tlscert_openssl_default_days) }}
-      -keyout {{ item.key|default(tlscert_key_path + "/" + item.CN + ".pem") }}
+      -keyout {{ item.key|default(tlscert_key_path + "/" + item.CN + ".key") }}
       -out {{ item.crt|default(tlscert_crt_path + "/" + item.CN + ".crt") }}
       -config {{ tlscert_cnf_path }}/{{ item.CN }}-openssl.cnf
     creates={{ tlscert_crt_path }}/{{ item.CN }}.crt
 
-- name: Install tlscert facts
+- name: Include localfact tasks
   tags: tlscert
-  become: true
-  register: tlscert_registered_install_facts
-  template:
-    src: facts.j2
-    dest: /etc/ansible/facts.d/tlscert.fact
-    owner: 0
-    group: 0
-    mode: '0755'
-
-- name: Re-read facts
-  tags: tlscert
-  when: tlscert_registered_install_facts|changed
-  setup:
-    filter: ansible_local
+  include: ../../silpion.lib/tasks/localfacts.yml
+  vars:
+    namespace: tlscert
+    file_mode: '0755'
