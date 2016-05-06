@@ -25,7 +25,7 @@ set -euo pipefail
 
 # This script needs to be run as root
 if [[ $(id -u) != 0 ]]; then
-        sudo $0
+        sudo -n $0
         exit 0
 fi
 
@@ -41,13 +41,13 @@ KEYS=$(find $KEYPATH |xargs file|egrep 'PEM RSA private key|PEM DSA private key|
 
 # Print general information
 cat << EOF
-    {
-      "general": {
+{
+  "general": {
         "cnf_path": "$CONFPATH",
         "crt_path": "$CERTPATH",
         "key_path": "$KEYPATH"
       },
-      "certs": {
+  "certs": {
 EOF
 
 # JSON requires every but the last element of a list to be terminated with a ","
