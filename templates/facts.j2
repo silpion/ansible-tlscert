@@ -25,13 +25,13 @@ set -euo pipefail
 
 # This script needs to be run as root
 if [[ $(id -u) != 0 ]]; then
-        sudo --non-interactive $0
+        sudo -n $0 || echo 'Need root permissions!' && exit 1
         exit 0
 fi
 
-CONFPATH=${1:-'{{ tlscert_cnf_path }}'}
-CERTPATH=${2:-'{{ tlscert_crt_path }}'}
-KEYPATH=${3:-'{{ tlscert_key_path }}'}
+CONFPATH='{{ tlscert_cnf_path }}'
+CERTPATH='{{ tlscert_crt_path }}'
+KEYPATH='{{ tlscert_key_path }}'
 
 # Get all valid PEM certificates
 CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate" |grep -v 'ca-certificates.crt' |cut -d: -f1)
