@@ -25,13 +25,13 @@ set -euo pipefail
 
 # This script needs to be run as root
 if [[ $(id -u) != 0 ]]; then
-        sudo $0
+        sudo -n $0 || echo 'Need root permissions!' && exit 1
         exit 0
 fi
 
-CONFPATH=${1:-'{{ tlscert_cnf_path }}'}
-CERTPATH=${2:-'{{ tlscert_crt_path }}'}
-KEYPATH=${3:-'{{ tlscert_key_path }}'}
+CONFPATH='{{ tlscert_cnf_path }}'
+CERTPATH='{{ tlscert_crt_path }}'
+KEYPATH='{{ tlscert_key_path }}'
 
 # Get all valid PEM certificates
 CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate" |grep -v 'ca-certificates.crt' |cut -d: -f1)
@@ -41,13 +41,13 @@ KEYS=$(find $KEYPATH |xargs file|egrep 'PEM RSA private key|PEM DSA private key|
 
 # Print general information
 cat << EOF
-    {
-      "general": {
+{
+  "general": {
         "cnf_path": "$CONFPATH",
         "crt_path": "$CERTPATH",
         "key_path": "$KEYPATH"
       },
-      "certs": {
+  "certs": {
 EOF
 
 # JSON requires every but the last element of a list to be terminated with a ","
@@ -72,7 +72,7 @@ for cert in $CERTS; do
 
         # Generate a json dict entry for each domain
         for domain in $DOMAINS; do
-                
+
                 # All but the first element must be preprended with a comma
                 if [[ $ISFIRSTELEMENT == 'true' ]]; then
                         ISFIRSTELEMENT=false
