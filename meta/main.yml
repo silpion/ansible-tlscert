@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Mark Kusch
-  description: Manage SSL certificates
+  description: Manage SSL/TLS certificates
   company: http://silpion.de
   license: Apache 2
   min_ansible_version: 2.0.0.2
@@ -9,14 +9,16 @@ galaxy_info:
   - name: EL
     versions:
     - 6
+    - 7
   - name: Ubuntu
     versions:
     - trusty
   - name: Debian
     versions:
     - wheezy
-  categories:
+galaxy_tags:
+  - web
   - development
-  - system
+  - certificates
 dependencies:
   - silpion.lib
