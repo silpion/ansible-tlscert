@@ -1,3 +1,11 @@
+# 2.0.1
+
+
+* Use suid bit for facts script
+* Use long option for sudo call
+* Fix sudo timeout for facts script
+
+Alvaro Aleman (3):
 # 2.0.0
 Alvaro Aleman (8):
 
