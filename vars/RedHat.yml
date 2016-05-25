@@ -1,6 +1,9 @@
 ---
 tlscert_package_list:
   - openssl
+  # Required for fact script
+  - python-magic
+  - pyOpenSSL
 
 tlscert_cnf_path_default: /etc/pki/tls/cnf
 tlscert_crt_path_default: /etc/pki/tls/certs
