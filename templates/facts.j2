@@ -149,10 +149,16 @@ def addCertificatekeysToCertificates(certificates, keys):
             if certificate.modulus == key.modulus:
                 certificate.key = key
 
+def removeCertificatesWithoutKey(certificates):
+    for index, certificate in enumerate(certificates):
+        if not hasattr(certificate, 'key'):
+            del(certificates[index])
+
 def getCertificatesWithKeys(certificate_path, key_path):
     certificates = getCertificates(certificate_path)
     keys = getCertificateKeys(key_path)
     addCertificatekeysToCertificates(certificates, keys)
+    removeCertificatesWithoutKey(certificates)
     return certificates
 
 def sortCertificatesByDomain(certificates):
