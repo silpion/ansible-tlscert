@@ -16,7 +16,7 @@ galaxy_info:
   - name: Debian
     versions:
     - wheezy
-galaxy_tags:
+  galaxy_tags:
   - web
   - development
   - certificates
