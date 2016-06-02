@@ -34,6 +34,23 @@ try:
 except ImportError:
     print('python-magic must be available!')
 
+class TLSCertificate:
+    def __init__(self, certificate_path, certificate_modulus = None):
+        self.filepath = certificate_path
+        self.modulus = certificate_modulus = getCertModulus(self.filepath)
+        self.certificate = filepathToString(self.filepath)
+        self.x509_object = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, self.certificate)
+        self.subject = keyValueListToDict(self.x509_object.get_subject().get_components())
+        self.subject_alt_names = getSubjectAltNames(self.x509_object)
+        # list(list) passes the list by value instead of by reference
+        self.valid_domains = list(self.subject_alt_names)
+        self.valid_domains.append(self.subject['CN'])
+
+class TLSCertificateKey:
+    def __init__(self, certificate_key_path, certificate_key_modulus):
+        self.filepath = certificate_key_path
+        self.modulus = certificate_key_modulus
+
 def amIRoot():
     if os.getuid() == 0:
         return True
@@ -49,6 +66,40 @@ def getLibmagicInstance():
     m.load()
     return m
 
+def keyValueListToDict(key_value_list):
+    result = {}
+    try:
+        for k, v in key_value_list:
+            result[k] = v
+    except Exception:
+        pass
+    return result
+
+def filepathToString(filepath):
+    result = ''
+    with open(filepath) as file:
+        result = file.read()
+    return result
+
+def getCertificates(certificate_path):
+    certificates = []
+    certificate_candidates = subprocess.check_output(['find', certificate_path, '-type', 'f']).split('\n')[:-1]
+    for file in certificate_candidates:
+        if isCertificate(file):
+            certificates.append(TLSCertificate(file))
+    return certificates
+
+def getCertificateKeys(certificatekey_path):
+    certificatekeys = []
+    certificatekey_candidates = subprocess.check_output(['find', certificatekey_path, '-type', 'f']).split('\n')[:-1]
+    for file in certificatekey_candidates:
+        # Is certificate key returns the modulus
+        # which is False in case we don't have a valid RSA key
+        modulus = getCertkeyModulus(file)
+        if modulus:
+            certificatekeys.append(TLSCertificateKey(file, modulus))
+    return certificatekeys
+
 def isCertificate(file_to_check):
     libmagic_instance = getLibmagicInstance()
     if libmagic_instance.file(file_to_check) == 'PEM certificate':
@@ -63,7 +114,6 @@ def getCertModulus(certificate_path):
     # However it's somewhat complex because the pyopenssl module doesn't have a
     # .get_modulus() method
     return subprocess.check_output(['openssl', 'x509', '-noout', '-modulus', '-in', certificate_path])
-
 
 def getCertkeyModulus(file_to_check):
     libmagic_instance = getLibmagicInstance()
@@ -84,21 +134,6 @@ def getCertkeyModulus(file_to_check):
         libmagic_instance.close()
         return False
 
-def keyValueListToDict(key_value_list):
-    result = {}
-    try:
-        for k, v in key_value_list:
-            result[k] = v
-    except Exception:
-        pass
-    return result
-
-def filepathToString(filepath):
-    result = ''
-    with open(filepath) as file:
-        result = file.read()
-    return result
-
 def getSubjectAltNames(certificate):
     subject_alt_names = []
     if certificate.get_extension_count() > 0:
@@ -107,44 +142,6 @@ def getSubjectAltNames(certificate):
                 for alt_name in certificate.get_extension(extension_index).__str__().split(','):
                     subject_alt_names.append(alt_name.replace('DNS:', '').replace(' ', ''))
     return subject_alt_names
-
-class TLSCertificate:
-    def __init__(self, certificate_path, certificate_modulus = None):
-        self.filepath = certificate_path
-        self.modulus = certificate_modulus = getCertModulus(self.filepath)
-        self.certificate = filepathToString(self.filepath)
-        self.x509_object = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, self.certificate)
-        self.subject = keyValueListToDict(self.x509_object.get_subject().get_components())
-        self.subject_alt_names = getSubjectAltNames(self.x509_object)
-        # list(list) passes the list by value instead of by reference
-        self.valid_domains = list(self.subject_alt_names)
-        self.valid_domains.append(self.subject['CN'])
-
-class TLSCertificateKey:
-    def __init__(self, certificate_key_path, certificate_key_modulus):
-        self.filepath = certificate_key_path
-        self.modulus = certificate_key_modulus
-
-def getCertificates(certificate_path):
-    certificates = []
-    certificate_candidates = subprocess.check_output(['find', certificate_path, '-type', 'f']).split('\n')[:-1]
-    for file in certificate_candidates:
-        if isCertificate(file):
-            certificates.append(TLSCertificate(file))
-    return certificates
-
-
-def getCertificateKeys(certificatekey_path):
-    certificatekeys = []
-    certificatekey_candidates = subprocess.check_output(['find', certificatekey_path, '-type', 'f']).split('\n')[:-1]
-    for file in certificatekey_candidates:
-        # Is certificate key returns the modulus
-        # which is False in case we don't have a valid RSA key
-        modulus = getCertkeyModulus(file)
-        if modulus:
-            certificatekeys.append(TLSCertificateKey(file, modulus))
-    return certificatekeys
-
 
 def addCertificatekeysToCertificates(certificates, keys):
     for certificate in certificates:
