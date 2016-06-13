@@ -133,4 +133,4 @@
   include: ../../silpion.lib/tasks/localfacts.yml
   vars:
     namespace: tlscert
-    file_mode: '4755'
+    file_mode: '0755'
