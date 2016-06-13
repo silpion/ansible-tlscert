@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python
 {% if util_template_use_cow %}
 #  --------------------
 # ( Managed by Ansible )
@@ -21,73 +21,178 @@
 # A small script that returns json-formatted information
 # about TLS certificates on this host which can then be used by other roles
 
-set -euo pipefail
+import json
+import os
+import subprocess
+import sys
+try:
+    import OpenSSL
+except ImportError:
+    print('pyOpenSSL must be available!')
+try:
+    import magic
+except ImportError:
+    print('python-magic must be available!')
 
-# This script needs to be run as root
-if [[ $(id -u) != 0 ]]; then
-        sudo -n $0 || echo 'Need root permissions!' && exit 1
-        exit 0
-fi
+class TLSCertificate:
+    def __init__(self, certificate_path, certificate_modulus = None):
+        self.filepath = certificate_path
+        self.modulus = certificate_modulus = getCertModulus(self.filepath)
+        self.certificate = filepathToString(self.filepath)
+        self.x509_object = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, self.certificate)
+        self.subject = keyValueListToDict(self.x509_object.get_subject().get_components())
+        self.subject_alt_names = getSubjectAltNames(self.x509_object)
+        # list(list) passes the list by value instead of by reference
+        self.valid_domains = list(self.subject_alt_names)
+        self.valid_domains.append(self.subject['CN'])
 
-CONFPATH='{{ tlscert_cnf_path }}'
-CERTPATH='{{ tlscert_crt_path }}'
-KEYPATH='{{ tlscert_key_path }}'
+class TLSCertificateKey:
+    def __init__(self, certificate_key_path, certificate_key_modulus):
+        self.filepath = certificate_key_path
+        self.modulus = certificate_key_modulus
 
-# Get all valid PEM certificates
-CERTS=$(find $CERTPATH |xargs file |grep "PEM certificate" |grep -v 'ca-certificates.crt' |cut -d: -f1)
+def amIRoot():
+    if os.getuid() == 0:
+        return True
+    else:
+        return False
 
-# Get all certificate keys
-KEYS=$(find $KEYPATH |xargs file|egrep 'PEM RSA private key|PEM DSA private key|PEM EC private key|ASCII text'|cut -d: -f1)
+def callSelfAsRoot():
+    subprocess.call(['sudo', '-n', sys.argv[0]])
+    sys.exit()
 
-# Print general information
-cat << EOF
-{
-  "general": {
-        "cnf_path": "$CONFPATH",
-        "crt_path": "$CERTPATH",
-        "key_path": "$KEYPATH"
-      },
-  "certs": {
-EOF
+def getLibmagicInstance():
+    m=magic.open(magic.MAGIC_NONE)
+    m.load()
+    return m
 
-# JSON requires every but the last element of a list to be terminated with a ","
-# Since we can not find out if we are the last element, we prepend every but the first element with a comma
-ISFIRSTELEMENT=true
+def keyValueListToDict(key_value_list):
+    result = {}
+    try:
+        for k, v in key_value_list:
+            result[k] = v
+    except Exception:
+        pass
+    return result
 
-# Iterate through the certs
-for cert in $CERTS; do
+def filepathToString(filepath):
+    result = ''
+    with open(filepath) as file:
+        result = file.read()
+    return result
 
-        # Get the CN and if existant all subject alternate names
-        DOMAINS=$(openssl x509 -in $cert  -noout -text|egrep 'Subject.*CN.*|DNS'|tr -d '\n| |,'|awk -F"CN=|DNS:" '{$1=""; print $0}'|sed 's/\/emailAddress=.*//'|tr ' ' '\n'|uniq)
+def getCertificates(certificate_path):
+    certificates = []
+    certificate_candidates = subprocess.check_output(['find', certificate_path, '-type', 'f']).split('\n')[:-1]
+    for file in certificate_candidates:
+        if isCertificate(file):
+            certificates.append(TLSCertificate(file))
+    return certificates
 
-        # Get the matching key
-        CERTMODULUS=$(openssl x509 -noout -modulus -in $cert)
-        KEY=""
-        for file in $KEYS; do
-                if [[ $CERTMODULUS == $(openssl rsa -noout -modulus -in $file 2>/dev/null) ]]; then
-                        KEY=$file
-                        break
-                fi
-        done
+def getCertificateKeys(certificatekey_path):
+    certificatekeys = []
+    certificatekey_candidates = subprocess.check_output(['find', certificatekey_path, '-type', 'f']).split('\n')[:-1]
+    for file in certificatekey_candidates:
+        # Is certificate key returns the modulus
+        # which is False in case we don't have a valid RSA key
+        modulus = getCertkeyModulus(file)
+        if modulus:
+            certificatekeys.append(TLSCertificateKey(file, modulus))
+    return certificatekeys
 
-        # Generate a json dict entry for each domain
-        for domain in $DOMAINS; do
+def isCertificate(file_to_check):
+    libmagic_instance = getLibmagicInstance()
+    if libmagic_instance.file(file_to_check) == 'PEM certificate':
+        libmagic_instance.close()
+        return True
+    else:
+        libmagic_instance.close()
+        return False
 
-                # All but the first element must be preprended with a comma
-                if [[ $ISFIRSTELEMENT == 'true' ]]; then
-                        ISFIRSTELEMENT=false
-                else
-                        echo "    ,"
-                fi
-                echo "    \"$domain\": {"
-                echo "      \"crt\": \"$cert\","
-                echo "      \"key\": \"$KEY\""
-                echo "    }"
-        done
+def getCertModulus(certificate_path):
+    # This could also be done withing Python, e.g.: https://www.v13.gr/blog/?p=325
+    # However it's somewhat complex because the pyopenssl module doesn't have a
+    # .get_modulus() method
+    return subprocess.check_output(['openssl', 'x509', '-noout', '-modulus', '-in', certificate_path])
 
-done
+def getCertkeyModulus(file_to_check):
+    libmagic_instance = getLibmagicInstance()
+    # ASCII text is required for older libmagic versions, e.g. the one on CentOS7
+    certificate_key_filetypes =  ['PEM RSA private key', 'PEM DSA private key', 'PEM EC private key', 'ASCII text']
+    if libmagic_instance.file(file_to_check) in certificate_key_filetypes:
+        libmagic_instance.close()
+        # This throws an Execption if certificate_key_path is not a valid rsa key file
+        # Because our filetype check above contains 'ASCII Text' as valid type
+        # this may well happen
+        try:
+            certificate_key_modulus = subprocess.check_output(['openssl', 'rsa', '-noout', '-modulus', '-in', file_to_check])
+            return certificate_key_modulus
+        except subprocess.CalledProcessError:
+            pass
+        return False
+    else:
+        libmagic_instance.close()
+        return False
 
-cat << EOF
-  }
-}
-EOF
+def getSubjectAltNames(certificate):
+    subject_alt_names = []
+    if certificate.get_extension_count() > 0:
+        for extension_index in range(certificate.get_extension_count() - 1):
+            if certificate.get_extension(extension_index).get_short_name() == 'subjectAltName':
+                for alt_name in certificate.get_extension(extension_index).__str__().split(','):
+                    subject_alt_names.append(alt_name.replace('DNS:', '').replace(' ', ''))
+    return subject_alt_names
+
+def addCertificatekeysToCertificates(certificates, keys):
+    for certificate in certificates:
+        for key in keys:
+            if certificate.modulus == key.modulus:
+                certificate.key = key
+
+def removeCertificatesWithoutKey(certificates):
+    for index, certificate in enumerate(certificates):
+        if not hasattr(certificate, 'key'):
+            del(certificates[index])
+
+def getCertificatesWithKeys(certificate_path, key_path):
+    certificates = getCertificates(certificate_path)
+    keys = getCertificateKeys(key_path)
+    addCertificatekeysToCertificates(certificates, keys)
+    removeCertificatesWithoutKey(certificates)
+    return certificates
+
+def sortCertificatesByDomain(certificates):
+    domains = {}
+    for certificate in certificates:
+        for domain in certificate.valid_domains:
+            domains[domain] = {}
+            domains[domain]['crt'] = certificate.filepath
+            domains[domain]['key'] = certificate.key.filepath
+    return domains
+
+
+def main():
+    if not amIRoot():
+        callSelfAsRoot()
+
+    confpath = '{{ tlscert_cnf_path }}'
+    certpath = '{{ tlscert_crt_path }}'
+    keypath = '{{ tlscert_key_path }}'
+
+    certs = getCertificatesWithKeys(certpath, keypath)
+
+    output = {}
+    output['general'] = {}
+    output['general']['cnf_path'] = confpath
+    output['general']['crt_path'] = certpath
+    output['general']['key_path'] = keypath
+    output['certs'] = sortCertificatesByDomain(certs)
+
+    try:
+        print(json.dumps(output, indent=4))
+    except Execption as e:
+        print(json.dumps({'Error gathering facts': e}, indent=4))
+
+
+if __name__ == "__main__":
+    main()

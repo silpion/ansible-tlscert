@@ -115,6 +115,9 @@ A list of self-signed certificates to generate.
 ## Facts
 
 This role provides various facts. First off, it deploys a script that tries to find all available certificates.
+
+**Warning**: The facts script needs passwordless sudo!
+
 These facts can be used by other roles to automatically find the right certificate and key:
 
 ```yml
