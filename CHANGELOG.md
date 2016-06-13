@@ -1,3 +1,17 @@
+# 2.1.0
+
+
+* Rerun generator
+* Fixup dependencies for Debian
+* Remove suid bit for facts script
+* Only output certificates that have a coressponding key
+* Factscript: Reorder to increase readability
+* Factscript: Try calling self if not root
+* Port factscript to Python
+* Fix intendation in meta/main.yml
+* Update galaxy info
+
+Alvaro Aleman (9):
 # 2.0.1
 
 
