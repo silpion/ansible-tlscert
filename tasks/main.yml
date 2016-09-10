@@ -9,22 +9,6 @@
   tags: tlscert
   include: ../../silpion.lib/tasks/os-specific-vars.yml
 
-- name: Template role-internal vars file
-  tags: tlscert
-  changed_when: false
-  always_run: true
-  local_action: template
-  args:
-    src: roleinternal_facts.j2
-    dest: "{{ tlscert_localfacts }}"
-    mode: '0640'
-
-- name: Include roleinternal vars file
-  tags: tlscert
-  changed_when: false
-  always_run: true
-  include_vars: "{{ tlscert_localfacts }}"
-
 - name: Set tlscert_changed
   tags: tlscert
   changed_when: false
