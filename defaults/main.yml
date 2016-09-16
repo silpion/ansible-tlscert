@@ -49,3 +49,7 @@ tlscert_openssl_default_P: 'SILPION!'              # challengePassword_default
 tlscert_install_sourcedirectory: 'files'
 
 util_template_use_cow: true
+
+tlscert_cnf_path: "{{ tlscert_cnf_path_default }}"
+tlscert_crt_path: "{{ tlscert_crt_path_default }}"
+tlscert_key_path: "{{ tlscert_key_path_default }}"
