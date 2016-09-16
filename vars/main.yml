@@ -3,4 +3,5 @@ tlscert_supported_platforms:
   - Debian
   - RedHat
 
-tlscert_localfacts: '{{ role_path }}/vars/temp/{{ inventory_hostname}}_tlscert_localfacts.yml'
+
+tlscert_localfact_create: "{{ lookup('template', role_path  ~ '/templates/var_tlscert_localfact_create.j2')|from_yaml }}"

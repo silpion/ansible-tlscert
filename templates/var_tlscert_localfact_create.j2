@@ -1,0 +1,13 @@
+{% if tlscert_create|length > 0 %}
+{% for cert in tlscert_create %}
+- C: {{ cert.C|default(tlscert_openssl_default_C) }}
+  CN: {{ cert.CN|default(cert) }}
+  ST: {{ cert.ST|default(tlscert_openssl_default_ST) }}
+  OU: {{ cert.OU|default(tlscert_openssl_default_OU) }}
+  L: {{ cert.L|default(tlscert_openssl_default_L) }}
+  O: {{ cert.O|default(tlscert_openssl_default_O) }}
+  email: {{ cert.email|default(tlscert_openssl_default_email)|default('webmaster@' + cert.CN|default(cert)) }}
+{% endfor %}
+{% else %}
+[]
+{% endif %}
